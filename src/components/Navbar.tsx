@@ -3,7 +3,7 @@
 import { SearchIcon, PanelLeft, MoonIcon, SunIcon } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../features/themeSlice';
-import { assets } from '../assets/assets';
+import { Show, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
 
 interface NavbarProps {
   isSidebarOpen: boolean;
@@ -13,8 +13,6 @@ interface NavbarProps {
 const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
     const dispatch = useDispatch();
     const theme = useSelector((state: any) => state.theme.theme);
-
-    const userAvatar = assets.profile_img_a?.src || assets.profile_img_a;
 
     return (
         <div className="w-full bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 xl:px-16 py-3 flex-shrink-0">
@@ -48,8 +46,24 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                         }
                     </button>
 
-                    {/* User Button */}
-                    <img src={userAvatar} alt="User Avatar" className="size-7 rounded-full" />
+                    {/* Clerk User Button / Sign In / Sign Up */}
+                    <Show when="signed-in">
+                        <UserButton />
+                    </Show>
+                    <Show when="signed-out">
+                        <div className="flex gap-2">
+                            <SignInButton mode="modal">
+                                <button className="px-3 py-1.5 text-xs font-semibold rounded border border-gray-300 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800 cursor-pointer">
+                                    Sign In
+                                </button>
+                            </SignInButton>
+                            <SignUpButton mode="modal">
+                                <button className="px-3 py-1.5 text-xs font-semibold rounded bg-blue-600 text-white hover:bg-blue-700 cursor-pointer">
+                                    Sign Up
+                                </button>
+                            </SignUpButton>
+                        </div>
+                    </Show>
                 </div>
             </div>
         </div>

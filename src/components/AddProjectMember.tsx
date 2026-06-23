@@ -106,10 +106,10 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }: AddProjectMemberPro
                         </label>
                         <div className="relative">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400 w-4 h-4" />
-                            <select value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-sm placeholder-zinc-400 dark:placeholder-zinc-500 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required >
-                                <option value="">Select a member</option>
+                            <select value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-sm placeholder-zinc-400 dark:placeholder-zinc-500 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required >
+                                <option value="" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Select a member</option>
                                 {availableMembers.map((member: any) => (
-                                    <option key={member.user.id} value={member.user.email}>
+                                    <option key={member.user.id} value={member.user.email} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">
                                         {member.user.name} ({member.user.email})
                                     </option>
                                 ))}

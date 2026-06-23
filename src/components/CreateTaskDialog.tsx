@@ -105,21 +105,21 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Type</label>
-                            <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1" >
-                                <option value="BUG">Bug</option>
-                                <option value="FEATURE">Feature</option>
-                                <option value="TASK">Task</option>
-                                <option value="IMPROVEMENT">Improvement</option>
-                                <option value="OTHER">Other</option>
+                            <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} className="w-full rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1" >
+                                <option value="BUG" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Bug</option>
+                                <option value="FEATURE" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Feature</option>
+                                <option value="TASK" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Task</option>
+                                <option value="IMPROVEMENT" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Improvement</option>
+                                <option value="OTHER" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Other</option>
                             </select>
                         </div>
 
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Priority</label>
-                            <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"                             >
-                                <option value="LOW">Low</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="HIGH">High</option>
+                            <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className="w-full rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"                             >
+                                <option value="LOW" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Low</option>
+                                <option value="MEDIUM" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Medium</option>
+                                <option value="HIGH" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">High</option>
                             </select>
                         </div>
                     </div>
@@ -128,10 +128,10 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Assignee</label>
-                            <select value={formData.assigneeId} onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })} className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1" >
-                                <option value="">Unassigned</option>
+                            <select value={formData.assigneeId} onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })} className="w-full rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1" >
+                                <option value="" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Unassigned</option>
                                 {teamMembers.map((member: any) => (
-                                    <option key={member?.user?.id} value={member?.user?.id}>
+                                    <option key={member?.user?.id} value={member?.user?.id} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">
                                         {member?.user?.name || member?.user?.email}
                                     </option>
                                 ))}
@@ -140,10 +140,10 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Status</label>
-                            <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1" >
-                                <option value="TODO">To Do</option>
-                                <option value="IN_PROGRESS">In Progress</option>
-                                <option value="DONE">Done</option>
+                            <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1" >
+                                <option value="TODO" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">To Do</option>
+                                <option value="IN_PROGRESS" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">In Progress</option>
+                                <option value="DONE" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Done</option>
                             </select>
                         </div>
                     </div>

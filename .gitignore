@@ -21,3 +21,6 @@ npm-debug.log*
 .env
 .env*.local
 
+
+# clerk configuration (can include secrets)
+/.clerk/

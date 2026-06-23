@@ -99,8 +99,8 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
         }
     };
 
-    const inputClasses = "w-full px-3 py-2 rounded mt-2 border text-sm dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-300 focus:outline-none focus:ring-1 focus:ring-blue-500";
-    const cardClasses = "rounded-lg border p-6 not-dark:bg-white dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border-zinc-300 dark:border-zinc-800";
+    const inputClasses = "w-full px-3 py-2 rounded mt-2 border text-sm bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-300 focus:outline-none focus:ring-1 focus:ring-blue-500";
+    const cardClasses = "rounded-lg border p-6 bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border-zinc-300 dark:border-zinc-800";
     const labelClasses = "text-sm text-zinc-600 dark:text-zinc-400 font-medium";
 
     if (!project) return null;
@@ -128,20 +128,20 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
                         <div className="space-y-2">
                             <label className={labelClasses}>Status</label>
                             <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className={inputClasses} >
-                                <option value="PLANNING">Planning</option>
-                                <option value="ACTIVE">Active</option>
-                                <option value="ON_HOLD">On Hold</option>
-                                <option value="COMPLETED">Completed</option>
-                                <option value="CANCELLED">Cancelled</option>
+                                <option value="PLANNING" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Planning</option>
+                                <option value="ACTIVE" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Active</option>
+                                <option value="ON_HOLD" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">On Hold</option>
+                                <option value="COMPLETED" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Completed</option>
+                                <option value="CANCELLED" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Cancelled</option>
                             </select>
                         </div>
 
                         <div className="space-y-2">
                             <label className={labelClasses}>Priority</label>
                             <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className={inputClasses} >
-                                <option value="LOW">Low</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="HIGH">High</option>
+                                <option value="LOW" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Low</option>
+                                <option value="MEDIUM" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Medium</option>
+                                <option value="HIGH" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">High</option>
                             </select>
                         </div>
                     </div>

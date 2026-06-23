@@ -133,21 +133,21 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }: CreateProjectDia
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm mb-1">Status</label>
-                            <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none" >
-                                <option value="PLANNING">Planning</option>
-                                <option value="ACTIVE">Active</option>
-                                <option value="COMPLETED">Completed</option>
-                                <option value="ON_HOLD">On Hold</option>
-                                <option value="CANCELLED">Cancelled</option>
+                            <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none" >
+                                <option value="PLANNING" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Planning</option>
+                                <option value="ACTIVE" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Active</option>
+                                <option value="COMPLETED" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Completed</option>
+                                <option value="ON_HOLD" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">On Hold</option>
+                                <option value="CANCELLED" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Cancelled</option>
                             </select>
                         </div>
 
                         <div>
                             <label className="block text-sm mb-1">Priority</label>
-                            <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none" >
-                                <option value="LOW">Low</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="HIGH">High</option>
+                            <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className="w-full px-3 py-2 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none" >
+                                <option value="LOW" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Low</option>
+                                <option value="MEDIUM" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Medium</option>
+                                <option value="HIGH" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">High</option>
                             </select>
                         </div>
                     </div>
@@ -174,10 +174,10 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }: CreateProjectDia
                                 team_lead: val,
                                 team_members: val && !prev.team_members.includes(val) ? [...prev.team_members, val] : prev.team_members
                             }));
-                        }} className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none" >
-                            <option value="">No lead</option>
+                        }} className="w-full px-3 py-2 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none" >
+                            <option value="" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">No lead</option>
                             {currentWorkspace?.members?.map((member: any) => (
-                                <option key={member.user.email} value={member.user.email}>
+                                <option key={member.user.email} value={member.user.email} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">
                                     {member.user.name} ({member.user.email})
                                 </option>
                             ))}
@@ -187,7 +187,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }: CreateProjectDia
                     {/* Team Members */}
                     <div>
                         <label className="block text-sm mb-1">Team Members</label>
-                        <select className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none"
+                        <select className="w-full px-3 py-2 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none"
                             value=""
                             onChange={(e) => {
                                 const val = e.target.value;
@@ -196,9 +196,9 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }: CreateProjectDia
                                 }
                             }}
                         >
-                            <option value="">Add team members</option>
+                            <option value="" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">Add team members</option>
                             {availableMembers.map((member: any) => (
-                                <option key={member.user.email} value={member.user.email}>
+                                <option key={member.user.email} value={member.user.email} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200">
                                     {member.user.name} ({member.user.email})
                                 </option>
                             ))}

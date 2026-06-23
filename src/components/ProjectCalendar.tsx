@@ -49,7 +49,7 @@ const ProjectCalendar = ({ tasks }: ProjectCalendarProps) => {
         <div className="grid lg:grid-cols-3 gap-6">
             {/* Calendar View */}
             <div className="lg:col-span-2 ">
-                <div className="not-dark:bg-white dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4">
+                <div className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-zinc-900 dark:text-white text-md flex gap-2 items-center max-sm:hidden font-medium">
                             <CalendarIcon className="size-5" /> Task Calendar
@@ -97,7 +97,7 @@ const ProjectCalendar = ({ tasks }: ProjectCalendarProps) => {
 
                 {/* Tasks for Selected Day */}
                 {getTasksForDate(selectedDate).length > 0 && (
-                    <div className=" not-dark:bg-white mt-6 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4">
+                    <div className=" bg-white mt-6 dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4">
                         <h3 className="text-zinc-900 dark:text-white text-md font-medium mb-3">
                             Tasks for {format(selectedDate, "MMM d, yyyy")}
                         </h3>
