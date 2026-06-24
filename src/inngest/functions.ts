@@ -1,40 +1,49 @@
 import { inngest } from "./client";
 import { prisma } from "../lib/prisma";
 
-// Background job to calculate project progress based on task statuses
-export const calculateProjectProgress = inngest.createFunction(
-  { id: "calculate-project-progress", triggers: [{ event: "app/task.updated" }] },
-  async ({ event, step }) => {
-    const { projectId } = event.data;
-
-    // Run this computation step-by-step
-    await step.run("compute-progress", async () => {
-      // 1. Fetch all tasks for the project
-      const tasks = await prisma.task.findMany({
-        where: { projectId },
-        select: { status: true },
-      });
-
-      // 2. If no tasks exist, progress is 0%
-      if (tasks.length === 0) {
-        await prisma.project.update({
-          where: { id: projectId },
-          data: { progress: 0 },
-        });
-        return { progress: 0 };
-      }
-
-      // 3. Compute percentage of completed tasks (status: DONE)
-      const doneTasks = tasks.filter((task) => task.status === "DONE");
-      const progress = Math.round((doneTasks.length / tasks.length) * 100);
-
-      // 4. Update the project progress in the database
-      await prisma.project.update({
-        where: { id: projectId },
-        data: { progress },
-      });
-
-      return { progress };
+// Inngest functions to create user
+export const syncUserCreation = inngest.createFunction(
+  { id: "sync-user-from-clerk", triggers: { event: "clerk/user.created" } },
+  async ({ event }) => {
+    const { data } = event;
+    await prisma.user.create({
+      data: {
+        id: data.id,
+        email: data.email_addresses[0]?.email_address,
+        name: data?.first_name + " " + data?.last_name,
+        image: data?.image_url,
+      },
     });
-  }
+  },
+);
+
+// Inngest function to delete user
+export const syncUserDeletion = inngest.createFunction(
+  { id: "delete-user-with-clerk", triggers: { event: "clerk/user.deleted" } },
+  async ({ event }) => {
+    const { data } = event;
+    await prisma.user.delete({
+      where: {
+        id: data.id,
+      },
+    });
+  },
+);
+
+// Inngest function to update user data in the database
+export const syncUserUpdation = inngest.createFunction(
+  { id: "update-user-from-clerk", triggers: { event: "clerk/user.updated" } },
+  async ({ event }) => {
+    const { data } = event;
+    await prisma.user.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        email: data?.email_addresses[0]?.email_address,
+        name: data?.first_name + " " + data?.last_name,
+        image: data?.image_url,
+      },
+    });
+  },
 );
