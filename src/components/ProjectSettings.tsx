@@ -5,7 +5,7 @@ import { Plus, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddProjectMember from "./AddProjectMember";
 import { useDispatch, useSelector } from "react-redux";
-import { updateWorkspace } from "../features/workspaceSlice";
+import { updateProject } from "../features/workspaceSlice";
 import { toast } from "react-hot-toast";
 
 interface ProjectSettingsProps {
@@ -59,30 +59,29 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
 
         setIsSubmitting(true);
         try {
-            // Update the project in the workspace projects list
-            const updatedProjects = currentWorkspace.projects.map((p: any) => {
-                if (p.id === formData.id) {
-                    return {
-                        ...p,
-                        name: formData.name,
-                        description: formData.description,
-                        status: formData.status,
-                        priority: formData.priority,
-                        start_date: formData.start_date ? new Date(formData.start_date).toISOString() : p.start_date,
-                        end_date: formData.end_date ? new Date(formData.end_date).toISOString() : p.end_date,
-                        progress: formData.progress,
-                    };
-                }
-                return p;
+            const res = await fetch("/api/projects", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: formData.id,
+                    name: formData.name,
+                    description: formData.description,
+                    status: formData.status,
+                    priority: formData.priority,
+                    start_date: formData.start_date ? new Date(formData.start_date).toISOString() : null,
+                    end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
+                    progress: formData.progress,
+                }),
             });
 
-            const updatedWorkspace = {
-                ...currentWorkspace,
-                projects: updatedProjects
-            };
-
-            dispatch(updateWorkspace(updatedWorkspace));
-            toast.success("Project settings updated successfully!");
+            if (res.ok) {
+                const savedProject = await res.json();
+                dispatch(updateProject(savedProject));
+                toast.success("Project settings updated successfully!");
+            } else {
+                const errData = await res.json();
+                toast.error(errData.error || "Failed to update project settings");
+            }
         } catch (error) {
             toast.error("Failed to update project settings");
         } finally {

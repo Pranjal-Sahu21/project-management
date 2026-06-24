@@ -21,6 +21,9 @@ npm-debug.log*
 .env
 .env*.local
 
+#vscode configs
+.vscode
+
 
 # clerk configuration (can include secrets)
 /.clerk/

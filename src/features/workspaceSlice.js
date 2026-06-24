@@ -48,6 +48,20 @@ const workspaceSlice = createSlice({
                 w.id === state.currentWorkspace.id ? { ...w, projects: w.projects.concat(action.payload) } : w
             );
         },
+        updateProject: (state, action) => {
+            const project = action.payload;
+            state.currentWorkspace.projects = state.currentWorkspace.projects.map((p) =>
+                p.id === project.id ? { ...p, ...project } : p
+            );
+            state.workspaces = state.workspaces.map((w) =>
+                w.id === state.currentWorkspace.id ? {
+                    ...w,
+                    projects: w.projects.map((p) =>
+                        p.id === project.id ? { ...p, ...project } : p
+                    )
+                } : w
+            );
+        },
         addTask: (state, action) => {
             state.currentWorkspace.projects = state.currentWorkspace.projects.map((p) => {
                 if (p.id === action.payload.projectId) {
@@ -88,23 +102,25 @@ const workspaceSlice = createSlice({
             );
         },
         deleteTask: (state, action) => {
-            state.currentWorkspace.projects = state.currentWorkspace.projects.map((p) => {
-                p.tasks = p.tasks.filter((t) => !action.payload.includes(t.id));
-                return p;
-            });
-            // find workspace and project by id and delete task from it
+            const taskIds = action.payload;
+            state.currentWorkspace.projects = state.currentWorkspace.projects.map((p) => ({
+                ...p,
+                tasks: p.tasks.filter((t) => !taskIds.includes(t.id))
+            }));
+
+            // find workspace and delete tasks from all its projects
             state.workspaces = state.workspaces.map((w) =>
                 w.id === state.currentWorkspace.id ? {
-                    ...w, projects: w.projects.map((p) =>
-                        p.id === action.payload.projectId ? {
-                            ...p, tasks: p.tasks.filter((t) => !action.payload.includes(t.id))
-                        } : p
-                    )
+                    ...w,
+                    projects: w.projects.map((p) => ({
+                        ...p,
+                        tasks: p.tasks.filter((t) => !taskIds.includes(t.id))
+                    }))
                 } : w
             );
         }
     }
 });
 
-export const { setWorkspaces, setCurrentWorkspace, addWorkspace, updateWorkspace, deleteWorkspace, addProject, addTask, updateTask, deleteTask } = workspaceSlice.actions;
+export const { setWorkspaces, setCurrentWorkspace, addWorkspace, updateWorkspace, deleteWorkspace, addProject, updateProject, addTask, updateTask, deleteTask } = workspaceSlice.actions;
 export default workspaceSlice.reducer;

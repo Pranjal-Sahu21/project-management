@@ -39,39 +39,41 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
         setIsSubmitting(true);
         try {
-            const taskId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
-            const assigneeUser = teamMembers.find((m: any) => m?.user?.id === formData.assigneeId)?.user || null;
-
-            const newTask = {
-                id: taskId,
-                projectId: projectId,
-                title: formData.title,
-                description: formData.description,
-                status: formData.status,
-                type: formData.type,
-                priority: formData.priority,
-                assigneeId: formData.assigneeId || null,
-                assignee: assigneeUser,
-                due_date: formData.due_date ? new Date(formData.due_date).toISOString() : null,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                comments: []
-            };
-
-            dispatch(addTask(newTask));
-            toast.success("Task created successfully!");
-            setShowCreateTask(false);
-
-            // Reset form
-            setFormData({
-                title: "",
-                description: "",
-                type: "TASK",
-                status: "TODO",
-                priority: "MEDIUM",
-                assigneeId: "",
-                due_date: "",
+            const res = await fetch("/api/tasks", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    projectId,
+                    title: formData.title,
+                    description: formData.description,
+                    status: formData.status,
+                    type: formData.type,
+                    priority: formData.priority,
+                    assigneeId: formData.assigneeId || null,
+                    due_date: formData.due_date ? new Date(formData.due_date).toISOString() : null,
+                }),
             });
+
+            if (res.ok) {
+                const savedTask = await res.json();
+                dispatch(addTask(savedTask));
+                toast.success("Task created successfully!");
+                setShowCreateTask(false);
+
+                // Reset form
+                setFormData({
+                    title: "",
+                    description: "",
+                    type: "TASK",
+                    status: "TODO",
+                    priority: "MEDIUM",
+                    assigneeId: "",
+                    due_date: "",
+                });
+            } else {
+                const errData = await res.json();
+                toast.error(errData.error || "Failed to create task");
+            }
         } catch (error) {
             toast.error("Failed to create task");
         } finally {

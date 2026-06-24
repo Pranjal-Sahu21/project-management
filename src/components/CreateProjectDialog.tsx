@@ -38,52 +38,44 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }: CreateProjectDia
 
         setIsSubmitting(true);
         try {
-            const projectId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
-            
-            // Map emails to workspace members or placeholder user structures
-            const projectMembers = formData.team_members.map((email) => {
-                const wsMember = currentWorkspace?.members?.find((m: any) => m.user.email === email);
-                return {
-                    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
-                    userId: wsMember?.userId || email,
-                    projectId: projectId,
-                    user: wsMember?.user || { id: email, name: email.split('@')[0], email: email }
-                };
+            const res = await fetch("/api/projects", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: formData.name,
+                    description: formData.description,
+                    priority: formData.priority,
+                    status: formData.status,
+                    start_date: formData.start_date ? new Date(formData.start_date).toISOString() : null,
+                    end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
+                    team_lead: formData.team_lead || null,
+                    workspaceId: currentWorkspace?.id,
+                    team_members: formData.team_members,
+                }),
             });
 
-            const newProject = {
-                id: projectId,
-                name: formData.name,
-                description: formData.description,
-                priority: formData.priority,
-                status: formData.status,
-                start_date: formData.start_date ? new Date(formData.start_date).toISOString() : new Date().toISOString(),
-                end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
-                team_lead: formData.team_lead || currentWorkspace?.ownerId || "user_3",
-                workspaceId: currentWorkspace?.id,
-                progress: 0,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                tasks: [],
-                members: projectMembers
-            };
-
-            dispatch(addProject(newProject));
-            toast.success("Project created successfully!");
-            setIsDialogOpen(false);
-            
-            // Reset form
-            setFormData({
-                name: "",
-                description: "",
-                status: "PLANNING",
-                priority: "MEDIUM",
-                start_date: "",
-                end_date: "",
-                team_members: [],
-                team_lead: "",
-                progress: 0,
-            });
+            if (res.ok) {
+                const savedProject = await res.json();
+                dispatch(addProject(savedProject));
+                toast.success("Project created successfully!");
+                setIsDialogOpen(false);
+                
+                // Reset form
+                setFormData({
+                    name: "",
+                    description: "",
+                    status: "PLANNING",
+                    priority: "MEDIUM",
+                    start_date: "",
+                    end_date: "",
+                    team_members: [],
+                    team_lead: "",
+                    progress: 0,
+                });
+            } else {
+                const errData = await res.json();
+                toast.error(errData.error || "Failed to create project");
+            }
         } catch (error) {
             toast.error("Failed to create project");
         } finally {

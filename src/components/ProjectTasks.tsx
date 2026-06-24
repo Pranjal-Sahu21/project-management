@@ -64,17 +64,24 @@ const ProjectTasks = ({ tasks }: ProjectTasksProps) => {
         try {
             toast.loading("Updating status...");
 
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const res = await fetch("/api/tasks", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: taskId,
+                    status: newStatus,
+                }),
+            });
 
-            const taskToUpdate = tasks.find((t) => t.id === taskId);
-            if (taskToUpdate) {
-                const updatedTask = { ...taskToUpdate, status: newStatus };
+            if (res.ok) {
+                const updatedTask = await res.json();
                 dispatch(updateTask(updatedTask));
+                toast.dismiss();
+                toast.success("Task status updated successfully");
+            } else {
+                const errData = await res.json();
+                throw new Error(errData.error || "Failed to update status");
             }
-
-            toast.dismiss();
-            toast.success("Task status updated successfully");
         } catch (error: any) {
             toast.dismiss();
             toast.error(error.message || "Failed to update status");
@@ -88,14 +95,21 @@ const ProjectTasks = ({ tasks }: ProjectTasksProps) => {
 
             toast.loading("Deleting tasks...");
 
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const res = await fetch("/api/tasks", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ids: selectedTasks }),
+            });
 
-            dispatch(deleteTask(selectedTasks));
-            setSelectedTasks([]);
-
-            toast.dismiss();
-            toast.success("Tasks deleted successfully");
+            if (res.ok) {
+                dispatch(deleteTask(selectedTasks));
+                setSelectedTasks([]);
+                toast.dismiss();
+                toast.success("Tasks deleted successfully");
+            } else {
+                const errData = await res.json();
+                throw new Error(errData.error || "Failed to delete tasks");
+            }
         } catch (error: any) {
             toast.dismiss();
             toast.error(error.message || "Failed to delete tasks");

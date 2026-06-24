@@ -30,42 +30,34 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }: InviteMemberDialo
 
         setIsSubmitting(true);
         try {
-            // Check if member already exists
-            const exists = currentWorkspace?.members?.some((m: any) => m.user.email === formData.email);
-            if (exists) {
-                toast.error("Member already in workspace");
-                return;
-            }
-
-            const memberId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
-            const userId = "user_" + Math.random().toString(36).substring(2, 9);
-
-            const newMember = {
-                id: memberId,
-                userId: userId,
-                workspaceId: currentWorkspace.id,
-                message: "",
-                role: formData.role,
-                user: {
-                    id: userId,
-                    name: formData.email.split('@')[0],
+            const res = await fetch("/api/members", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                     email: formData.email,
-                    image: null
-                }
-            };
-
-            const updatedWorkspace = {
-                ...currentWorkspace,
-                members: [...currentWorkspace.members, newMember]
-            };
-
-            dispatch(updateWorkspace(updatedWorkspace));
-            toast.success("Invitation sent & member added successfully!");
-            setIsDialogOpen(false);
-            setFormData({
-                email: "",
-                role: "MEMBER",
+                    role: formData.role,
+                    workspaceId: currentWorkspace.id,
+                }),
             });
+
+            if (res.ok) {
+                const newMember = await res.json();
+                const updatedWorkspace = {
+                    ...currentWorkspace,
+                    members: [...currentWorkspace.members, newMember]
+                };
+
+                dispatch(updateWorkspace(updatedWorkspace));
+                toast.success("Invitation sent & member added successfully!");
+                setIsDialogOpen(false);
+                setFormData({
+                    email: "",
+                    role: "MEMBER",
+                });
+            } else {
+                const errData = await res.json();
+                toast.error(errData.error || "Failed to send invitation");
+            }
         } catch (error) {
             toast.error("Failed to send invitation");
         } finally {

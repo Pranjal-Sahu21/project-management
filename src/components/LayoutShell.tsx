@@ -5,6 +5,7 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadTheme } from '../features/themeSlice';
+import { setWorkspaces, setCurrentWorkspace } from '../features/workspaceSlice';
 import { Loader2Icon } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import { Show } from '@clerk/nextjs';
@@ -24,6 +25,32 @@ export default function LayoutShell({ children }: LayoutShellProps) {
         dispatch(loadTheme());
         setIsMounted(true);
     }, [dispatch]);
+
+    // Load workspaces from backend API on mount
+    useEffect(() => {
+        if (isMounted) {
+            const fetchWorkspaces = async () => {
+                try {
+                    const res = await fetch("/api/workspace");
+                    if (res.ok) {
+                        const data = await res.json();
+                        dispatch(setWorkspaces(data));
+                        
+                        // Restore current workspace from localStorage if possible
+                        const savedWsId = localStorage.getItem("currentWorkspaceId");
+                        if (savedWsId && data.some((ws: any) => ws.id === savedWsId)) {
+                            dispatch(setCurrentWorkspace(savedWsId));
+                        } else if (data.length > 0) {
+                            dispatch(setCurrentWorkspace(data[0].id));
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching workspaces:", error);
+                }
+            };
+            fetchWorkspaces();
+        }
+    }, [isMounted, dispatch]);
 
     if (loading) {
         return (

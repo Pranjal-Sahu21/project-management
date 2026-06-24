@@ -33,38 +33,40 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }: AddProjectMemberPro
 
         setIsAdding(true);
         try {
-            const wsMember = currentWorkspace?.members?.find((m: any) => m.user.email === email);
-            if (!wsMember) {
-                toast.error("Member not found in workspace");
-                return;
-            }
-
-            const newMember = {
-                id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
-                userId: wsMember.userId,
-                projectId: projectId,
-                user: wsMember.user
-            };
-
-            const updatedProjects = currentWorkspace.projects.map((p: any) => {
-                if (p.id === projectId) {
-                    return {
-                        ...p,
-                        members: [...p.members, newMember]
-                    };
-                }
-                return p;
+            const res = await fetch("/api/members", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email,
+                    projectId,
+                }),
             });
 
-            const updatedWorkspace = {
-                ...currentWorkspace,
-                projects: updatedProjects
-            };
+            if (res.ok) {
+                const newMember = await res.json();
+                const updatedProjects = currentWorkspace.projects.map((p: any) => {
+                    if (p.id === projectId) {
+                        return {
+                            ...p,
+                            members: [...p.members, newMember]
+                        };
+                    }
+                    return p;
+                });
 
-            dispatch(updateWorkspace(updatedWorkspace));
-            toast.success("Member added to project successfully!");
-            setIsDialogOpen(false);
-            setEmail('');
+                const updatedWorkspace = {
+                    ...currentWorkspace,
+                    projects: updatedProjects
+                };
+
+                dispatch(updateWorkspace(updatedWorkspace));
+                toast.success("Member added to project successfully!");
+                setIsDialogOpen(false);
+                setEmail('');
+            } else {
+                const errData = await res.json();
+                toast.error(errData.error || "Failed to add member to project");
+            }
         } catch (error) {
             toast.error("Failed to add member to project");
         } finally {
