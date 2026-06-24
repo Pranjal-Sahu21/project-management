@@ -4,9 +4,21 @@ import {
   syncUserCreation,
   syncUserDeletion,
   syncUserUpdation,
+  syncWorkspaceCreation,
+  syncWorkspaceDeletion,
+  syncWorkspaceMemberCreation,
+  syncWorkspaceUpdation,
 } from "@/inngest/functions";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [syncUserCreation, syncUserDeletion, syncUserUpdation],
+  functions: [
+    syncUserCreation,
+    syncUserDeletion,
+    syncUserUpdation,
+    syncWorkspaceCreation,
+    syncWorkspaceUpdation,
+    syncWorkspaceDeletion,
+    syncWorkspaceMemberCreation,
+  ],
 });
