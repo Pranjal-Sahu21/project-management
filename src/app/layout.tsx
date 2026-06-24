@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import StoreProvider from "./StoreProvider";
 import LayoutShell from "../components/LayoutShell";
+import ClerkThemeProvider from "../components/ClerkThemeProvider";
+// @ts-ignore
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -19,7 +20,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Project Management Platform",
-  description: "A premium project management dashboard to track your workspaces, tasks, calendars, and team collaboration.",
+  description:
+    "A premium project management dashboard to track your workspaces, tasks, calendars, and team collaboration.",
 };
 
 export default function RootLayout({
@@ -30,11 +32,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable}`}>
       <body className="antialiased font-sans">
-        <ClerkProvider>
+        <ClerkThemeProvider>
           <StoreProvider>
             <LayoutShell>{children}</LayoutShell>
           </StoreProvider>
-        </ClerkProvider>
+        </ClerkThemeProvider>
       </body>
     </html>
   );

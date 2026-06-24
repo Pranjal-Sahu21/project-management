@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { prisma } from "../../../lib/prisma";
+import { createTask, updateTask, deleteTasks } from "../../../controllers/taskController";
 import { inngest } from "../../../inngest/client";
 
 export async function POST(req: Request) {
@@ -15,54 +15,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Project ID and Title are required" }, { status: 400 });
     }
 
-    // Verify project exists
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      select: { workspaceId: true },
-    });
+    try {
+      const task = await createTask(userId, { projectId, title, description, status, type, priority, assigneeId, due_date });
 
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      // Trigger Inngest event to calculate project progress
+      await inngest.send({
+        name: "app/task.updated",
+        data: { projectId },
+      });
+
+      return NextResponse.json(task);
+    } catch (err: any) {
+      if (err.message === "Project not found") {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      }
+      if (err.message === "Forbidden") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      throw err;
     }
-
-    // Verify workspace membership
-    const member = await prisma.workspaceMember.findUnique({
-      where: {
-        userId_workspaceId: {
-          userId,
-          workspaceId: project.workspaceId,
-        },
-      },
-    });
-
-    if (!member) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const task = await prisma.task.create({
-      data: {
-        projectId,
-        title,
-        description,
-        status: status || "TODO",
-        type: type || "TASK",
-        priority: priority || "MEDIUM",
-        assigneeId: assigneeId || null,
-        due_date: due_date ? new Date(due_date) : null,
-      },
-      include: {
-        assignee: true,
-        comments: true,
-      },
-    });
-
-    // Trigger Inngest event to calculate project progress
-    await inngest.send({
-      name: "app/task.updated",
-      data: { projectId },
-    });
-
-    return NextResponse.json(task);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -80,57 +51,25 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
     }
 
-    // Verify task exists and get project workspaceId
-    const taskExists = await prisma.task.findUnique({
-      where: { id },
-      include: {
-        project: {
-          select: { workspaceId: true },
-        },
-      },
-    });
+    try {
+      const task = await updateTask(userId, id, { title, description, status, type, priority, assigneeId, due_date });
 
-    if (!taskExists) {
-      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+      // Trigger Inngest event to calculate project progress
+      await inngest.send({
+        name: "app/task.updated",
+        data: { projectId: task.projectId },
+      });
+
+      return NextResponse.json(task);
+    } catch (err: any) {
+      if (err.message === "Task not found") {
+        return NextResponse.json({ error: "Task not found" }, { status: 404 });
+      }
+      if (err.message === "Forbidden") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      throw err;
     }
-
-    // Verify workspace membership
-    const member = await prisma.workspaceMember.findUnique({
-      where: {
-        userId_workspaceId: {
-          userId,
-          workspaceId: taskExists.project.workspaceId,
-        },
-      },
-    });
-
-    if (!member) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const task = await prisma.task.update({
-      where: { id },
-      data: {
-        title,
-        description,
-        status,
-        type,
-        priority,
-        assigneeId: assigneeId === "" ? null : assigneeId,
-        due_date: due_date ? new Date(due_date) : undefined,
-      },
-      include: {
-        assignee: true,
-      },
-    });
-
-    // Trigger Inngest event to calculate project progress
-    await inngest.send({
-      name: "app/task.updated",
-      data: { projectId: task.projectId },
-    });
-
-    return NextResponse.json(task);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -149,50 +88,28 @@ export async function DELETE(req: Request) {
     }
 
     const taskIds = Array.isArray(ids) ? ids : [ids];
-    if (taskIds.length === 0) {
-      return NextResponse.json({ error: "Task ID list is empty" }, { status: 400 });
+    try {
+      const result = await deleteTasks(userId, taskIds);
+
+      // Trigger Inngest event to calculate project progress
+      await inngest.send({
+        name: "app/task.updated",
+        data: { projectId: result.projectId },
+      });
+
+      return NextResponse.json({ success: true });
+    } catch (err: any) {
+      if (err.message === "Task ID list is empty") {
+        return NextResponse.json({ error: "Task ID list is empty" }, { status: 400 });
+      }
+      if (err.message === "Task not found") {
+        return NextResponse.json({ error: "Task not found" }, { status: 404 });
+      }
+      if (err.message === "Forbidden") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      throw err;
     }
-
-    // Check workspace membership for the first task (assuming all belong to the same workspace context)
-    const taskSample = await prisma.task.findUnique({
-      where: { id: taskIds[0] },
-      include: {
-        project: {
-          select: { workspaceId: true },
-        },
-      },
-    });
-
-    if (!taskSample) {
-      return NextResponse.json({ error: "Task not found" }, { status: 404 });
-    }
-
-    const member = await prisma.workspaceMember.findUnique({
-      where: {
-        userId_workspaceId: {
-          userId,
-          workspaceId: taskSample.project.workspaceId,
-        },
-      },
-    });
-
-    if (!member) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    await prisma.task.deleteMany({
-      where: {
-        id: { in: taskIds },
-      },
-    });
-
-    // Trigger Inngest event to calculate project progress
-    await inngest.send({
-      name: "app/task.updated",
-      data: { projectId: taskSample.projectId },
-    });
-
-    return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

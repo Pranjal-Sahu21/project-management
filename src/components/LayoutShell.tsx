@@ -86,7 +86,7 @@ export default function LayoutShell({ children }: LayoutShellProps) {
             </Show>
             
             <Show when="signed-out">
-                <div className="flex-1 flex items-center justify-center h-screen overflow-y-auto">
+                <div className="w-full min-h-screen bg-white dark:bg-zinc-950">
                     {children}
                 </div>
             </Show>
