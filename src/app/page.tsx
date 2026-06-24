@@ -69,7 +69,7 @@ export default function DashboardPage() {
       <Show when="signed-out">
         <div className="w-full min-h-screen flex flex-col lg:flex-row bg-white dark:bg-[#18181a]">
           {/* Left Column - Form */}
-          <div className="flex-2 flex flex-col items-center justify-center p-6 sm:p-10">
+          <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10">
             {isMounted && (
               <div className="w-full max-w-[400px] flex flex-col items-center">
                 <SignIn />
@@ -78,7 +78,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Right Column - Mockup image (desktop only) */}
-          <div className="hidden lg:block flex-3 relative min-h-screen">
+          <div className="hidden lg:block flex-2 relative min-h-screen">
             <Image
               src={HomeMockupLight}
               alt="Platform Dashboard Preview"
