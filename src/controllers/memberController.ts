@@ -18,15 +18,7 @@ export async function addMember(
   });
 
   if (!user) {
-    // Create a default placeholder user for this email so relations work
-    const placeholderId = "user_" + Math.random().toString(36).substring(2, 9);
-    user = await prisma.user.create({
-      data: {
-        id: placeholderId,
-        name: email.split("@")[0],
-        email,
-      },
-    });
+    throw new Error("No user found with this email address");
   }
 
   // CASE 1: Add member to project
