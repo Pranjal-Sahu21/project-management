@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Check, Plus, X } from "lucide-react";
+import { ChevronDown, Check, Plus, X, Upload, Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentWorkspace, addWorkspace } from "../features/workspaceSlice";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import workspaceImgDefault from "../assets/workspace_img_default.png";
+import Image from "next/image";
 
 function WorkspaceDropdown() {
     const router = useRouter();
@@ -16,6 +18,8 @@ function WorkspaceDropdown() {
     const [isOpen, setIsOpen] = useState(false);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [newWsName, setNewWsName] = useState("");
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -23,6 +27,28 @@ function WorkspaceDropdown() {
         dispatch(setCurrentWorkspace(organizationId));
         setIsOpen(false);
         router.push('/');
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                toast.error("Image size must be less than 2MB");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                setSelectedImage(base64String);
+                setImagePreview(base64String);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setSelectedImage(null);
+        setImagePreview(null);
     };
 
     const handleCreateWorkspace = async (e: React.FormEvent) => {
@@ -36,7 +62,10 @@ function WorkspaceDropdown() {
             const res = await fetch("/api/workspace", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: newWsName }),
+                body: JSON.stringify({ 
+                    name: newWsName, 
+                    image_url: selectedImage || workspaceImgDefault.src || workspaceImgDefault
+                }),
             });
             if (res.ok) {
                 const data = await res.json();
@@ -46,6 +75,8 @@ function WorkspaceDropdown() {
                 setIsCreateOpen(false);
                 setIsOpen(false);
                 setNewWsName("");
+                setSelectedImage(null);
+                setImagePreview(null);
                 router.push('/');
             } else {
                 const errData = await res.json();
@@ -134,14 +165,61 @@ function WorkspaceDropdown() {
                         <h2 className="text-lg font-medium mb-4">Create New Workspace</h2>
                         <form onSubmit={handleCreateWorkspace} className="space-y-4">
                             <div>
-                                <label className="block text-sm mb-1">Workspace Name</label>
-                                <input type="text" value={newWsName} onChange={(e) => setNewWsName(e.target.value)} placeholder="e.g. Acme Marketing" className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 mt-1 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" required />
+                                <label className="block text-sm mb-2 font-medium">Workspace Name</label>
+                                <input type="text" value={newWsName} onChange={(e) => setNewWsName(e.target.value)} placeholder="e.g. Acme Marketing" className="w-full px-3 py-2 rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" required />
                             </div>
+
+                            <div>
+                                <label className="block text-sm mb-2 font-medium">Workspace Image <span className="text-xs text-zinc-500 dark:text-zinc-400">(Optional)</span></label>
+                                
+                                {!imagePreview ? (
+                                    <div className="space-y-3">
+                                        <div className="relative w-full h-32 rounded-lg border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+                                            <Image src={workspaceImgDefault.src || workspaceImgDefault} alt="Default" className="w-full h-full object-cover opacity-60" />
+                                            <div className="absolute inset-0 bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                                                <span className="text-xs text-zinc-500 dark:text-zinc-400">Default workspace image</span>
+                                            </div>
+                                        </div>
+                                        <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg cursor-pointer bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition">
+                                            <div className="flex flex-col items-center justify-center">
+                                                <Upload className="w-5 h-5 text-zinc-400 dark:text-zinc-500 mb-1.5" />
+                                                <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                                                    <span className="font-semibold">Click to upload</span> or drag and drop
+                                                </p>
+                                                <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">PNG, JPG up to 2MB</p>
+                                            </div>
+                                            <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                                        </label>
+                                    </div>
+                                ) : (
+                                    <div className="relative inline-block w-full">
+                                        <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-lg border border-zinc-300 dark:border-zinc-700" />
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveImage}
+                                            className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition shadow-lg"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                        <label className="absolute bottom-2 right-2 flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg cursor-pointer transition shadow-lg">
+                                            <Upload className="w-3.5 h-3.5" />
+                                            Change
+                                            <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                                        </label>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="flex justify-end gap-3 pt-2 text-sm">
-                                <button type="button" onClick={() => setIsCreateOpen(false)} className="px-4 py-2 rounded border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer" >
+                                <button type="button" onClick={() => {
+                                    setIsCreateOpen(false);
+                                    setNewWsName("");
+                                    setSelectedImage(null);
+                                    setImagePreview(null);
+                                }} className="px-4 py-2 rounded border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition" >
                                     Cancel
                                 </button>
-                                <button type="submit" disabled={isCreating} className="px-4 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white cursor-pointer" >
+                                <button type="submit" disabled={isCreating} className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white cursor-pointer transition disabled:opacity-50" >
                                     {isCreating ? "Creating..." : "Create Workspace"}
                                 </button>
                             </div>

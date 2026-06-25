@@ -69,13 +69,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, description, settings } = await req.json();
+    const { name, description, settings, image_url } = await req.json();
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
     // Create workspace using Controller
-    const workspace = await createWorkspace(userId, { name, description, settings });
+    const workspace = await createWorkspace(userId, { name, description, settings, image_url });
     return NextResponse.json(workspace);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

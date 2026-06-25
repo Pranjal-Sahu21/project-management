@@ -30,9 +30,9 @@ export async function getUserWorkspaces(userId: string) {
 // Create new workspace
 export async function createWorkspace(
   userId: string,
-  data: { name: string; description?: string; settings?: any },
+  data: { name: string; description?: string; settings?: any; image_url?: string },
 ) {
-  const { name, description, settings } = data;
+  const { name, description, settings, image_url } = data;
   const slug =
     name
       .toLowerCase()
@@ -48,6 +48,7 @@ export async function createWorkspace(
       description,
       settings: settings || {},
       ownerId: userId,
+      image_url,
       members: {
         create: {
           userId,
