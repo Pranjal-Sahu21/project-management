@@ -102,7 +102,7 @@ export default function FeaturesGridSection() {
           transition={{ duration: 0.6 }}
           className="flex justify-center"
         >
-          <span className="inline-flex items-center text-xs font-medium text-[#09f] bg-[#09f]/10 border border-[#09f]/20 rounded-full px-4 py-1.5">
+          <span className="inline-flex items-center text-xs text-[#09f] bg-[#09f]/10 border border-[#09f]/20 rounded-full px-4 py-1.5">
             Features
           </span>
         </motion.div>
@@ -161,7 +161,7 @@ export default function FeaturesGridSection() {
         >
           <a
             href="/sign-up"
-            className="group text-[#09f] hover:text-[#09f]/80 text-sm inline-flex items-center gap-1 transition-colors cursor-pointer font-semibold"
+            className="group text-[#09f] hover:text-[#09f]/80 text-sm inline-flex items-center gap-1 transition-colors cursor-pointer"
           >
             <span>Start for free</span>
             <span className="relative flex items-center justify-center overflow-hidden w-4 h-4 shrink-0">

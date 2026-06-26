@@ -4,7 +4,7 @@ import { motion, Variants } from "motion/react";
 import Image from "next/image";
 
 import WorkspaceImage from "@/assets/workspace_img_default.png";
-import CreateProject from "@/assets/create-project-img.avif";
+import CreateProject from "@/assets/create-project-img.png";
 import TrackProgress from "@/assets/track-progress-img.avif";
 
 const steps = [
@@ -54,8 +54,8 @@ export default function HowItWorksSection() {
     <section id="how-it-works" className="py-24 md:py-32">
       <div className="max-w-7xl mx-auto px-6">
         <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -80 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
           className="text-3xl md:text-4xl lg:text-5xl font-heading text-white max-w-xl font-normal"
@@ -91,11 +91,11 @@ export default function HowItWorksSection() {
               {/* Text Area (with step info) */}
               <div className="p-6 md:p-8 flex-1 flex flex-col justify-start">
                 <div className="flex items-center mb-3">
-                  <span className="text-[9px] font-semibold text-[#09f] bg-[#09f]/10 border border-[#09f]/20 rounded-full px-2.5 py-0.5 uppercase tracking-wider">
+                  <span className="text-[9px] text-[#09f] bg-[#09f]/10 border border-[#09f]/20 rounded-full px-2.5 py-0.5 uppercase tracking-wider">
                     Step {step.step}
                   </span>
                 </div>
-                <h3 className="text-lg text-white font-medium font-heading">
+                <h3 className="text-lg text-white font-heading">
                   {step.title}
                 </h3>
                 <p className="text-sm text-white/55 mt-2 leading-relaxed">

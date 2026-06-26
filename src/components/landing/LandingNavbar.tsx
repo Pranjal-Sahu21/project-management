@@ -58,7 +58,7 @@ export default function LandingNavbar() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => scrollToSection(e, link.href)}
-                className="text-white/65 hover:text-white text-sm font-medium transition-colors duration-200"
+                className="text-white/65 hover:text-white text-sm transition-colors duration-200"
               >
                 {link.label}
               </a>
@@ -69,9 +69,9 @@ export default function LandingNavbar() {
           <div className="hidden md:block">
             <a
               href="/sign-up"
-              className="group flex items-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors duration-200 cursor-pointer"
+              className="group flex items-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white text-sm px-5 py-2.5 rounded-full transition-colors duration-200 cursor-pointer"
             >
-              <span>Sign Up Free</span>
+              <span>Get Started</span>
               <span className="relative flex items-center justify-center overflow-hidden w-4 h-4 shrink-0">
                 <span className="absolute transition-transform duration-300 ease-out translate-x-0 translate-y-0 group-hover:translate-x-3.5 group-hover:-translate-y-3.5">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -166,9 +166,9 @@ export default function LandingNavbar() {
                   <a
                     href="/sign-up"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="group flex items-center justify-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white text-base font-semibold px-5 py-3 rounded-full transition-colors duration-200 cursor-pointer"
+                    className="group flex items-center justify-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white text-base px-5 py-3 rounded-full transition-colors duration-200 cursor-pointer"
                   >
-                    <span>Sign Up Free</span>
+                    <span>Get Started</span>
                     <span className="relative flex items-center justify-center overflow-hidden w-4 h-4 shrink-0">
                       <span className="absolute transition-transform duration-300 ease-out translate-x-0 translate-y-0 group-hover:translate-x-3.5 group-hover:-translate-y-3.5">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">

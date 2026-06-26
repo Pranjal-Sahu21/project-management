@@ -59,7 +59,7 @@ export default function HeroSection() {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="flex items-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white px-6 py-3 rounded-full text-base transition-colors duration-200 cursor-pointer font-semibold"
+                className="flex items-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white px-6 py-3 rounded-full text-base transition-colors duration-200 cursor-pointer"
               >
                 <span>Start for free</span>
                 <span className="relative flex items-center justify-center overflow-hidden w-4 h-4 ml-1 shrink-0">

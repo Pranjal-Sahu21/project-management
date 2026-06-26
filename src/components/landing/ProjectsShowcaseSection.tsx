@@ -7,7 +7,9 @@ import Dashboard from "@/assets/Dashboard_Default_Img.png";
 import profileImg1 from "@/assets/profile_avatar_1.png";
 import profileImg2 from "@/assets/profile_avatar_2.png";
 import profileImg3 from "@/assets/profile_avatar_3.png";
-import PlaceholderImage from "@/assets/workspace_img_default.png";
+import MileStoneTracking from "@/assets/MileStone_Tracking.png";
+import ProgressAnalytics from "@/assets/Progress_Analytics.png";
+import ActivityImage from "@/assets/Activity_Mockup.png";
 
 const containerVariants: Variants = {
   hidden: {},
@@ -35,8 +37,8 @@ export default function ProjectsShowcaseSection() {
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
           <motion.h2
             className="text-3xl md:text-4xl lg:text-5xl font-normal font-heading text-white leading-tight max-w-lg"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
           >
@@ -50,8 +52,7 @@ export default function ProjectsShowcaseSection() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6, delay: 0.15 }}
           >
-            Zynero gives your team a shared view of progress — priorities,
-            owners, timelines — so you can act on it immediately.
+            Zynero gives your team a shared view of progress, priorities, owners, and timelines so you can act immediately.
           </motion.p>
         </div>
 
@@ -70,13 +71,9 @@ export default function ProjectsShowcaseSection() {
             className="bg-[#0d0d0d] rounded-[28px] border border-white/[0.04] overflow-hidden lg:col-span-2 flex flex-col justify-between group cursor-pointer"
           >
             {/* Mockup at TOP */}
-            <div className="relative h-72 w-full overflow-hidden flex items-start justify-center bg-[#050505]/40 px-8 ">
+            <div className="relative h-48 sm:h-64 md:h-72 w-full overflow-hidden flex items-start justify-center bg-[#050505]/40 px-0 md:px-8">
               <div 
-                className="relative w-full md:w-full transition-transform duration-500 group-hover:scale-[1.02]"
-                style={{
-                  transform: "perspective(1200px) rotateX(16deg) rotateY(-12deg) rotateZ(3deg)",
-                  transformStyle: "preserve-3d"
-                }}
+                className="relative w-full md:w-full transition-transform duration-500 group-hover:scale-[1.02] [transform-style:preserve-3d] [transform:none] md:[transform:perspective(1200px)_rotateX(16deg)_rotateY(-12deg)_rotateZ(3deg)]"
               >
                 <Image
                   src={Dashboard}
@@ -87,12 +84,12 @@ export default function ProjectsShowcaseSection() {
                   priority
                 />
               </div>
-              <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0d0d0d] to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-16 md:h-20 bg-gradient-to-t from-[#0d0d0d] to-transparent pointer-events-none" />
             </div>
 
             {/* Text at BOTTOM */}
             <div className="p-8">
-              <h3 className="text-xl font-medium text-white font-heading">
+              <h3 className="text-xl text-white font-heading">
                 Smart Dashboard
               </h3>
               <p className="text-sm text-white/55 mt-2 leading-relaxed max-w-md">
@@ -110,7 +107,7 @@ export default function ProjectsShowcaseSection() {
             {/* Mockup at TOP */}
             <div className="relative h-72 w-full overflow-hidden bg-[#050505]/40 border-b border-white/[0.02]">
               <Image
-                src={PlaceholderImage}
+                src={ActivityImage}
                 alt="Activity Feed"
                 fill
                 className="object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-300"
@@ -120,7 +117,7 @@ export default function ProjectsShowcaseSection() {
 
             {/* Text at BOTTOM */}
             <div className="p-8">
-              <h3 className="text-xl font-medium text-white font-heading">
+              <h3 className="text-xl text-white font-heading">
                 Activity Feed
               </h3>
               <p className="text-sm text-white/55 mt-2 leading-relaxed max-w-[280px]">
@@ -138,7 +135,7 @@ export default function ProjectsShowcaseSection() {
             {/* Mockup at TOP */}
             <div className="relative h-72 w-full overflow-hidden bg-[#050505]/40 border-b border-white/[0.02]">
               <Image
-                src={PlaceholderImage}
+                src={ProgressAnalytics}
                 alt="Progress Analytics"
                 fill
                 className="object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-300"
@@ -148,7 +145,7 @@ export default function ProjectsShowcaseSection() {
 
             {/* Text at BOTTOM */}
             <div className="p-8">
-              <h3 className="text-xl font-medium text-white font-heading">
+              <h3 className="text-xl text-white font-heading">
                 Progress Analytics
               </h3>
               <p className="text-sm text-white/55 mt-2 leading-relaxed max-w-[280px]">
@@ -166,7 +163,7 @@ export default function ProjectsShowcaseSection() {
             {/* Mockup at TOP */}
             <div className="relative h-72 w-full overflow-hidden bg-[#050505]/40 border-b border-white/[0.02]">
               <Image
-                src={PlaceholderImage}
+                src={MileStoneTracking}
                 alt="Milestone Tracking"
                 fill
                 className="object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-300"
@@ -176,7 +173,7 @@ export default function ProjectsShowcaseSection() {
 
             {/* Text at BOTTOM */}
             <div className="p-8">
-              <h3 className="text-xl font-medium text-white font-heading">
+              <h3 className="text-xl text-white font-heading">
                 Milestone Tracking
               </h3>
               <p className="text-sm text-white/55 mt-2 leading-relaxed max-w-[280px]">
@@ -198,7 +195,7 @@ export default function ProjectsShowcaseSection() {
                 <Image src={profileImg2} alt="User Avatar" width={32} height={32} className="rounded-full border-2 border-[#0d0d0d] bg-zinc-800 object-cover" />
                 <Image src={profileImg3} alt="User Avatar" width={32} height={32} className="rounded-full border-2 border-[#0d0d0d] bg-zinc-800 object-cover" />
               </div>
-              <h3 className="text-xl font-medium text-white font-heading leading-snug max-w-[220px]">
+              <h3 className="text-xl text-white font-heading leading-snug max-w-[220px]">
                 Trusted by 500+ teams worldwide
               </h3>
             </motion.div>
@@ -210,10 +207,10 @@ export default function ProjectsShowcaseSection() {
               className="bg-[#0d0d0d] rounded-[28px] border border-white/[0.04] p-8 flex flex-col justify-between flex-2 gap-6"
             >
               <div>
-                <p className="text-4xl font-semibold font-heading text-white tracking-tight leading-none">
+                <p className="text-4xl font-heading text-white tracking-tight leading-none">
                   10,000+
                 </p>
-                <h3 className="text-xl font-medium text-white font-heading mt-2 leading-tight">
+                <h3 className="text-xl text-white font-heading mt-2 leading-tight">
                   projects shipped
                 </h3>
                 <p className="text-sm text-white/55 mt-3 leading-relaxed max-w-[240px]">
@@ -222,7 +219,7 @@ export default function ProjectsShowcaseSection() {
               </div>
               <a 
                 href="/sign-up" 
-                className="group text-[#09f] hover:text-[#09f]/80 text-sm inline-flex items-center gap-1 cursor-pointer transition-colors mt-2 font-semibold"
+                className="group text-[#09f] hover:text-[#09f]/80 text-sm inline-flex items-center gap-1 cursor-pointer transition-colors mt-2"
               >
                 <span>Start for free</span>
                 <span className="relative flex items-center justify-center overflow-hidden w-4 h-4 shrink-0">

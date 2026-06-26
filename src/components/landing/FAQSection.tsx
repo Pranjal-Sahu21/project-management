@@ -21,9 +21,9 @@ const faqs = [
       "Yes! You can invite team members and assign different roles within each workspace. Guest access and permission controls are built in.",
   },
   {
-    question: "What integrations does Zynero support?",
+    question: "Can I manage multiple projects within a single workspace?",
     answer:
-      "Zynero currently supports webhook integrations and REST API access. We're actively building integrations with Slack, GitHub, and Jira.",
+      "Absolutely. Within each workspace, you can create and coordinate multiple projects. Each project can have its own team members, task statuses, priorities, milestones, and timelines.",
   },
   {
     question: "Is my data secure on Zynero?",
@@ -31,9 +31,9 @@ const faqs = [
       "Absolutely. Zynero uses enterprise-grade authentication via Clerk, encrypted database connections, and role-based access controls to keep your data safe.",
   },
   {
-    question: "How do I get support if I have questions?",
+    question: "Does Zynero support multiple workspaces?",
     answer:
-      "You can reach our support team through the in-app help center, or email us directly. Priority support is available for team plans.",
+      "Yes, Zynero allows you to create and manage multiple workspaces. You can organize different teams, departments, or companies separately with individual members, projects, and settings.",
   },
 ];
 
@@ -48,32 +48,22 @@ export default function FAQSection() {
     <section id="faq" className="py-24 md:py-32">
       <div className="max-w-7xl mx-auto px-6">
         {/* Top: Two columns */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="grid md:grid-cols-2 gap-8 md:gap-12 items-end"
-        >
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-end">
           {/* Left column */}
           <div>
-            <span className="text-[#09f] text-sm font-medium">
-              Frequently asked
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading text-white leading-tight mt-3 max-w-lg">
+            <motion.h2
+              initial={{ opacity: 0, x: -80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
+              className="text-3xl md:text-4xl lg:text-5xl font-heading text-white leading-tight mt-3 max-w-lg"
+            >
               Got questions?
               <br />
               We&apos;ve got answers.
-            </h2>
+            </motion.h2>
           </div>
-
-          {/* Right column */}
-          <div className="md:flex md:items-end md:justify-end">
-            <p className="text-white/65 text-base mt-4 md:mt-0">
-              Here&apos;s everything you need to know before getting started.
-            </p>
-          </div>
-        </motion.div>
+        </div>
 
         {/* Accordion */}
         <div className="mt-16 divide-y divide-white/[0.08]">
@@ -93,7 +83,7 @@ export default function FAQSection() {
                   onClick={() => toggleIndex(index)}
                   className="py-5 w-full flex items-center justify-between cursor-pointer group text-left"
                 >
-                  <span className="text-base font-medium text-white group-hover:text-[#09f] transition pr-4">
+                  <span className="text-base text-white transition pr-4">
                     {faq.question}
                   </span>
                   <motion.span

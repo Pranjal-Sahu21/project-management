@@ -36,7 +36,7 @@ export default function ComparisonSection() {
           transition={{ duration: 0.6 }}
           className="flex justify-center"
         >
-          <span className="inline-flex items-center rounded-full border border-[#09f]/20 bg-[#09f]/10 px-4 py-1.5 text-sm font-medium text-[#09f]">
+          <span className="inline-flex items-center rounded-full border border-[#09f]/20 bg-[#09f]/10 px-4 py-1.5 text-sm text-[#09f]">
             Why Zynero?
           </span>
         </motion.div>
@@ -66,7 +66,7 @@ export default function ComparisonSection() {
             {/* Left side — Other Tools (directly on the parent background) */}
             <div className="flex flex-col justify-between p-4 md:p-6">
               <div>
-                <h3 className="text-lg text-white/55 mb-6 font-medium">
+                <h3 className="text-lg text-white/55 mb-6">
                   Other Tools
                 </h3>
                 <ul>
@@ -99,7 +99,7 @@ export default function ComparisonSection() {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,153,255,0.05),transparent_60%)] pointer-events-none" />
               
               <div className="relative z-10">
-                <h3 className="text-lg text-white mb-6 flex items-center gap-2 font-medium">
+                <h3 className="text-lg text-white mb-6 flex items-center gap-2">
                   <Image
                     src={ZyneroLogo}
                     alt="Zynero logo"
@@ -119,7 +119,7 @@ export default function ComparisonSection() {
                       }`}
                     >
                       <Check className="text-[#09f] w-4 h-4 mt-0.5 shrink-0" />
-                      <span className="font-medium">{benefit}</span>
+                      <span className="">{benefit}</span>
                     </li>
                   ))}
                 </ul>

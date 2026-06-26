@@ -165,7 +165,7 @@ function TestimonialRow({ items, speed = 40, reverse = false }: TestimonialRowPr
                 {testimonial.initial}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-white truncate">
+                <p className="text-sm text-white truncate">
                   {testimonial.name}
                 </p>
                 <p className="text-xs text-white/40 truncate">{testimonial.role}</p>
@@ -185,8 +185,8 @@ export default function TestimonialsSection() {
         {/* Header Row */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-16">
           <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
             className="text-3xl md:text-4xl lg:text-5xl font-heading text-white max-w-lg"
@@ -201,7 +201,7 @@ export default function TestimonialsSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-white/65 mt-4 md:mt-0 text-base max-w-md"
           >
-            Teams across industries trust Zynero to plan and ship — with
+            Teams across industries trust Zynero to plan and ship with
             real-time dashboards and effortless collaboration.
           </motion.p>
         </div>

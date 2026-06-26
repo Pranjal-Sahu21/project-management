@@ -51,7 +51,7 @@ export default function LandingFooter() {
 
             {/* Quick Links */}
             <div>
-              <h4 className="text-sm text-white mb-4 font-medium font-heading">
+              <h4 className="text-sm text-white mb-4 font-heading">
                 Quick links
               </h4>
               <nav className="flex flex-col">
@@ -69,7 +69,7 @@ export default function LandingFooter() {
 
             {/* Information */}
             <div>
-              <h4 className="text-sm text-white mb-4 font-medium font-heading">
+              <h4 className="text-sm text-white mb-4 font-heading">
                 Information
               </h4>
               <nav className="flex flex-col">
