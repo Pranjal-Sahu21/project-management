@@ -1,9 +1,11 @@
 "use client";
 
-import { SearchIcon, PanelLeft, MoonIcon, SunIcon } from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import { SearchIcon, PanelLeft, MoonIcon, SunIcon, Folder, CheckSquare } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../features/themeSlice';
 import { Show, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 interface NavbarProps {
   isSidebarOpen: boolean;
@@ -13,6 +15,47 @@ interface NavbarProps {
 const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
     const dispatch = useDispatch();
     const theme = useSelector((state: any) => state.theme.theme);
+    const currentWorkspace = useSelector((state: any) => state?.workspace?.currentWorkspace || null);
+    const router = useRouter();
+
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Get matching projects and tasks
+    const projects = currentWorkspace?.projects || [];
+    const filteredProjects = searchQuery.trim() === "" 
+        ? [] 
+        : projects.filter((project: any) => 
+            project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+
+    const filteredTasks = searchQuery.trim() === ""
+        ? []
+        : projects.flatMap((project: any) => 
+            (project.tasks || []).map((task: any) => ({
+                ...task,
+                projectName: project.name,
+                projectId: project.id
+            }))
+          ).filter((task: any) => 
+            task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+
+    const hasResults = filteredProjects.length > 0 || filteredTasks.length > 0;
 
     return (
         <div className="w-full bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 xl:px-16 py-3 flex-shrink-0">
@@ -25,13 +68,90 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                     </button>
 
                     {/* Search Input */}
-                    <div className="relative flex-1 max-w-sm">
+                    <div ref={searchRef} className="relative flex-1 max-w-sm">
                         <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-400 size-3.5" />
                         <input
                             type="text"
                             placeholder="Search projects, tasks..."
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setIsDropdownOpen(true);
+                            }}
+                            onFocus={() => setIsDropdownOpen(true)}
                             className="pl-8 pr-4 py-2 w-full bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
+
+                        {/* Search Results Dropdown */}
+                        {isDropdownOpen && searchQuery.trim() !== "" && (
+                            <div className="absolute left-0 right-0 mt-2 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border border-gray-200 dark:border-zinc-800 rounded-lg shadow-xl max-h-96 overflow-y-auto z-50 py-2 text-sm text-gray-900 dark:text-white animate-in fade-in slide-in-from-top-1 duration-150">
+                                {hasResults ? (
+                                    <>
+                                        {/* Projects Section */}
+                                        {filteredProjects.length > 0 && (
+                                            <div className="mb-2">
+                                                <div className="px-3 py-1 text-xs font-semibold text-gray-450 dark:text-zinc-550 uppercase tracking-wider">
+                                                    Projects
+                                                </div>
+                                                {filteredProjects.map((project: any) => (
+                                                    <button
+                                                        key={project.id}
+                                                        onClick={() => {
+                                                            router.push(`/projectsDetail?id=${project.id}`);
+                                                            setSearchQuery("");
+                                                            setIsDropdownOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-900 flex items-center gap-2.5 transition-colors cursor-pointer"
+                                                    >
+                                                        <Folder className="size-4 text-blue-500 shrink-0" />
+                                                        <div className="min-w-0">
+                                                            <div className="font-medium truncate">{project.name}</div>
+                                                            {project.description && (
+                                                                <div className="text-xs text-gray-500 dark:text-zinc-500 truncate">
+                                                                    {project.description}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Tasks Section */}
+                                        {filteredTasks.length > 0 && (
+                                            <div>
+                                                <div className="px-3 py-1 text-xs font-semibold text-gray-450 dark:text-zinc-550 uppercase tracking-wider">
+                                                    Tasks
+                                                </div>
+                                                {filteredTasks.map((task: any) => (
+                                                    <button
+                                                        key={task.id}
+                                                        onClick={() => {
+                                                            router.push(`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`);
+                                                            setSearchQuery("");
+                                                            setIsDropdownOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-900 flex items-center gap-2.5 transition-colors cursor-pointer"
+                                                    >
+                                                        <CheckSquare className="size-4 text-green-500 shrink-0" />
+                                                        <div className="min-w-0">
+                                                            <div className="font-medium truncate">{task.title}</div>
+                                                            <div className="text-xs text-gray-500 dark:text-zinc-500 truncate">
+                                                                Project: {task.projectName}
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="px-4 py-3 text-center text-gray-500 dark:text-zinc-500">
+                                        No results found for &ldquo;{searchQuery}&rdquo;
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 
