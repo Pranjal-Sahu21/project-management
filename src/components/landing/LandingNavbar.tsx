@@ -1,0 +1,146 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, AnimatePresence } from "motion/react";
+import { Menu, X } from "lucide-react";
+import ZyneroLogo from "@/assets/Zynero-image.png";
+
+const navLinks = [
+  { label: "How it works", href: "#how-it-works" },
+  { label: "Features", href: "#features" },
+  { label: "FAQ", href: "#faq" },
+];
+
+export default function LandingNavbar() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-white/[0.06]">
+        <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5">
+            <Image
+              src={ZyneroLogo}
+              alt="Zynero"
+              width={32}
+              height={32}
+              className="rounded-lg"
+            />
+            <span className="text-white text-lg">Zynero</span>
+          </Link>
+
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-white/65 hover:text-white text-sm font-medium transition-colors duration-200"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          {/* Desktop CTA */}
+          <div className="hidden md:block">
+            <a
+              href="/sign-up"
+              className="bg-[#09f] hover:bg-[#0088dd] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200 cursor-pointer"
+            >
+              Sign Up Free
+            </a>
+          </div>
+
+          {/* Mobile Hamburger */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden text-white/65 hover:text-white transition-colors duration-200"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </nav>
+      </header>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 top-0 z-[100] bg-[#050505]/95 backdrop-blur-xl md:hidden"
+          >
+            <div className="flex flex-col h-full">
+              {/* Mobile Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+                <Link
+                  href="/"
+                  className="flex items-center gap-2.5"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Image
+                    src={ZyneroLogo}
+                    alt="Zynero"
+                    width={32}
+                    height={32}
+                    className="rounded-lg"
+                  />
+                  <span className="text-white text-lg">
+                    Zynero
+                  </span>
+                </Link>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-white/65 hover:text-white transition-colors duration-200"
+                  aria-label="Close menu"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Mobile Nav Links */}
+              <div className="flex flex-col gap-2 px-6 pt-8">
+                {navLinks.map((link, i) => (
+                  <motion.a
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05, duration: 0.3 }}
+                    className="text-white/65 hover:text-white text-2xl py-3 transition-colors duration-200"
+                  >
+                    {link.label}
+                  </motion.a>
+                ))}
+              </div>
+
+              {/* Mobile CTA */}
+              <div className="px-6 mt-8">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35, duration: 0.3 }}
+                >
+                  <a
+                    href="/sign-up"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-center bg-[#09f] hover:bg-[#0088dd] text-white text-base font-medium px-5 py-3 rounded-full transition-colors duration-200 cursor-pointer"
+                  >
+                    Sign Up Free
+                  </a>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}

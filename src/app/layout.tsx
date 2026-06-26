@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter, Manrope } from "next/font/google";
 import StoreProvider from "./StoreProvider";
 import LayoutShell from "../components/LayoutShell";
 import ClerkThemeProvider from "../components/ClerkThemeProvider";
@@ -18,6 +18,12 @@ const inter = Inter({
   display: "swap",
 });
 
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Project Management Platform",
   description:
@@ -30,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable}`}>
+    <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable} ${manrope.variable}`}>
       <body className="antialiased font-sans">
         <ClerkThemeProvider>
           <StoreProvider>

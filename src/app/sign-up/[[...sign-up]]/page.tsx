@@ -19,7 +19,7 @@ export default function SignUpPage() {
       <div className="flex-2 flex flex-col items-center justify-center p-6 sm:p-10">
         {isMounted && (
           <div className="w-full max-w-[400px] flex flex-col items-center">
-            <SignUp />
+            <SignUp path="/sign-up" />
           </div>
         )}
       </div>

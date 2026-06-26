@@ -86,7 +86,7 @@ export default function LayoutShell({ children }: LayoutShellProps) {
             </Show>
             
             <Show when="signed-out">
-                <div className="w-full min-h-screen bg-white dark:bg-zinc-950">
+                <div className="w-full min-h-screen">
                     {children}
                 </div>
             </Show>
