@@ -89,7 +89,7 @@ export default function ComparisonSection() {
 
             {/* Right side — Zynero Card (nested slide-in card with reduced glow) */}
             <motion.div
-              initial={{ opacity: 0, x: 40 }}
+              initial={{ opacity: 0, x: 160 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.65, ease: "easeOut" }}

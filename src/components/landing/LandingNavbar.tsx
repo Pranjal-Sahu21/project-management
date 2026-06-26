@@ -10,11 +10,30 @@ import ZyneroLogo from "@/assets/Zynero-image.png";
 const navLinks = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Features", href: "#features" },
+  { label: "Testimonials", href: "#testimonials" },
   { label: "FAQ", href: "#faq" },
 ];
 
 export default function LandingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const cleanId = targetId.replace("#", "");
+    const element = document.getElementById(cleanId);
+    if (element) {
+      const offset = 80; // height of sticky navbar
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   return (
     <>
@@ -38,6 +57,7 @@ export default function LandingNavbar() {
               <a
                 key={link.href}
                 href={link.href}
+                onClick={(e) => scrollToSection(e, link.href)}
                 className="text-white/65 hover:text-white text-sm font-medium transition-colors duration-200"
               >
                 {link.label}
@@ -49,9 +69,21 @@ export default function LandingNavbar() {
           <div className="hidden md:block">
             <a
               href="/sign-up"
-              className="bg-[#09f] hover:bg-[#0088dd] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors duration-200 cursor-pointer"
+              className="group flex items-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors duration-200 cursor-pointer"
             >
-              Sign Up Free
+              <span>Sign Up Free</span>
+              <span className="relative flex items-center justify-center overflow-hidden w-4 h-4 shrink-0">
+                <span className="absolute transition-transform duration-300 ease-out translate-x-0 translate-y-0 group-hover:translate-x-3.5 group-hover:-translate-y-3.5">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                  </svg>
+                </span>
+                <span className="absolute transition-transform duration-300 ease-out -translate-x-3.5 translate-y-3.5 group-hover:translate-x-0 group-hover:translate-y-0">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                  </svg>
+                </span>
+              </span>
             </a>
           </div>
 
@@ -110,7 +142,10 @@ export default function LandingNavbar() {
                   <motion.a
                     key={link.href}
                     href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={(e) => {
+                      setMobileMenuOpen(false);
+                      scrollToSection(e, link.href);
+                    }}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 + i * 0.05, duration: 0.3 }}
@@ -131,9 +166,21 @@ export default function LandingNavbar() {
                   <a
                     href="/sign-up"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block text-center bg-[#09f] hover:bg-[#0088dd] text-white text-base font-medium px-5 py-3 rounded-full transition-colors duration-200 cursor-pointer"
+                    className="group flex items-center justify-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white text-base font-semibold px-5 py-3 rounded-full transition-colors duration-200 cursor-pointer"
                   >
-                    Sign Up Free
+                    <span>Sign Up Free</span>
+                    <span className="relative flex items-center justify-center overflow-hidden w-4 h-4 shrink-0">
+                      <span className="absolute transition-transform duration-300 ease-out translate-x-0 translate-y-0 group-hover:translate-x-3.5 group-hover:-translate-y-3.5">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                        </svg>
+                      </span>
+                      <span className="absolute transition-transform duration-300 ease-out -translate-x-3.5 translate-y-3.5 group-hover:translate-x-0 group-hover:translate-y-0">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                        </svg>
+                      </span>
+                    </span>
                   </a>
                 </motion.div>
               </div>

@@ -54,14 +54,26 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-8"
           >
-            <a href="/sign-up">
+            <a href="/sign-up" className="group inline-block">
               <motion.span
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="inline-block bg-[#09f] hover:bg-[#0088dd] text-white px-6 py-3 rounded-full text-base transition-colors duration-200 cursor-pointer"
+                className="flex items-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white px-6 py-3 rounded-full text-base transition-colors duration-200 cursor-pointer font-semibold"
               >
-                Start for free
+                <span>Start for free</span>
+                <span className="relative flex items-center justify-center overflow-hidden w-4 h-4 ml-1 shrink-0">
+                  <span className="absolute transition-transform duration-300 ease-out translate-x-0 translate-y-0 group-hover:translate-x-3.5 group-hover:-translate-y-3.5">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                    </svg>
+                  </span>
+                  <span className="absolute transition-transform duration-300 ease-out -translate-x-3.5 translate-y-3.5 group-hover:translate-x-0 group-hover:translate-y-0">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                    </svg>
+                  </span>
+                </span>
               </motion.span>
             </a>
           </motion.div>

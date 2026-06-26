@@ -18,10 +18,17 @@ export async function getUserWorkspaces(userId: string) {
             members: { include: { user: true } },
           },
         },
-        owner: true,
       },
     });
-    return workspaces;
+
+    // Attach owner user manually since owner is not a relation in schema
+    return workspaces.map(workspace => {
+      const ownerMember = workspace.members.find(m => m.userId === workspace.ownerId);
+      return {
+        ...workspace,
+        owner: ownerMember?.user || null
+      };
+    });
   } catch (error) {
     console.log(error);
   }

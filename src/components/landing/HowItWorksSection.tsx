@@ -1,11 +1,11 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, Variants } from "motion/react";
 import Image from "next/image";
 
-import LandingMockup from "@/assets/Landing_Mockup.png";
-import LandingMockupDark from "@/assets/Landing_Mockup_Dark.png";
-import HomeMockupLight from "@/assets/Home-Mockup-Light.png";
+import WorkspaceImage from "@/assets/workspace_img_default.png";
+import CreateProject from "@/assets/create-project-img.avif";
+import TrackProgress from "@/assets/track-progress-img.avif";
 
 const steps = [
   {
@@ -13,25 +13,25 @@ const steps = [
     title: "Create a workspace",
     description:
       "Set up your team's home base — organize projects, assign roles, and start organizing in one day.",
-    image: LandingMockup,
+    image: WorkspaceImage,
   },
   {
     step: 2,
     title: "Add your projects",
     description:
       "Break work into focused projects with task boards, milestones, and status workflows that fit your team.",
-    image: LandingMockupDark,
+    image: CreateProject,
   },
   {
     step: 3,
     title: "Track progress and ship",
     description:
       "Monitor team updates in real-time. Dashboards surface bottlenecks before they become blockers. Get the ship done.",
-    image: HomeMockupLight,
+    image: TrackProgress,
   },
 ];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -40,7 +40,7 @@ const containerVariants = {
   },
 };
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
@@ -78,13 +78,14 @@ export default function HowItWorksSection() {
               className="bg-[#0d0d0d] rounded-[28px] border border-white/[0.04] overflow-hidden group cursor-pointer flex flex-col justify-between"
             >
               {/* Mockup Container */}
-              <div className="relative w-full h-48 bg-[#050505]/40 border-b border-white/[0.02]">
+              <div className="relative w-full h-48 bg-[#050505]/40 border-b border-white/[0.02] overflow-hidden">
                 <Image
                   src={step.image}
                   alt={step.title}
                   fill
                   className="object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-300"
                 />
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0d0d0d] to-transparent pointer-events-none" />
               </div>
 
               {/* Text Area (with step info) */}
