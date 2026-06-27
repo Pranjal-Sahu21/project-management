@@ -36,9 +36,20 @@ const TaskDetailsContent = () => {
     });
 
     const { currentWorkspace } = useSelector((state: any) => state.workspace);
+    const currentUserMember = currentWorkspace?.members?.find((m: any) => m.userId === user?.id);
+    const isAdmin = currentUserMember?.role === "ADMIN";
 
     const fetchComments = async () => {
-        // No-op for dummy state
+        if (!taskId) return;
+        try {
+            const res = await fetch(`/api/comments?taskId=${taskId}`);
+            if (res.ok) {
+                const data = await res.json();
+                setComments(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch comments", error);
+        }
     };
 
     const fetchTaskDetails = async () => {
@@ -72,29 +83,29 @@ const TaskDetailsContent = () => {
     }, [task]);
 
     const handleAddComment = async () => {
-        if (!newComment.trim()) return;
+        if (!newComment.trim() || !taskId) return;
 
         try {
             toast.loading("Adding comment...");
+            const res = await fetch("/api/comments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    taskId,
+                    content: newComment,
+                }),
+            });
 
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-
-            const dummyComment = {
-                id: Date.now(),
-                user: { 
-                    id: user?.id || "user_1", 
-                    name: user?.fullName || user?.firstName || "Alex Smith", 
-                    image: user?.imageUrl || assets.profile_img_a 
-                },
-                content: newComment,
-                createdAt: new Date()
-            };
-
-            setComments((prev) => [...prev, dummyComment]);
-            setNewComment("");
-            toast.dismiss();
-            toast.success("Comment added.");
+            if (res.ok) {
+                const comment = await res.json();
+                setComments((prev) => [...prev, comment]);
+                setNewComment("");
+                toast.dismiss();
+                toast.success("Comment added.");
+            } else {
+                const errData = await res.json();
+                throw new Error(errData.error || "Failed to add comment");
+            }
         } catch (error: any) {
             toast.dismiss();
             toast.error(error.message || "Failed to add comment");
@@ -152,7 +163,7 @@ const TaskDetailsContent = () => {
     useEffect(() => {
         if (taskId && task) {
             fetchComments();
-            const interval = setInterval(() => { fetchComments(); }, 10000);
+            const interval = setInterval(() => { fetchComments(); }, 3000);
             return () => clearInterval(interval);
         }
     }, [taskId, task]);
@@ -218,9 +229,11 @@ const TaskDetailsContent = () => {
                     <div className="mb-3">
                         <div className="flex justify-between items-start">
                             <h1 className="text-lg font-semibold text-gray-900 dark:text-zinc-100 break-words max-w-[85%]">{task.title}</h1>
-                            <button onClick={() => setIsEditOpen(true)} className="p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-750 dark:text-zinc-400 dark:hover:text-zinc-200 cursor-pointer transition">
-                                <PenIcon className="size-4" />
-                            </button>
+                            {isAdmin && (
+                                <button onClick={() => setIsEditOpen(true)} className="p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-750 dark:text-zinc-400 dark:hover:text-zinc-200 cursor-pointer transition">
+                                    <PenIcon className="size-4" />
+                                </button>
+                            )}
                         </div>
                         <div className="flex flex-wrap gap-2 mt-2">
                             <span className="px-2 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-300 text-xs font-semibold">

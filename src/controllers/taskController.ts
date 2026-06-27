@@ -98,7 +98,7 @@ export async function updateTask(
     },
   });
 
-  if (!member) {
+  if (!member || member.role !== "ADMIN") {
     throw new Error("Forbidden");
   }
 
