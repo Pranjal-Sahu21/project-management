@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,6 +10,14 @@ import { Toaster } from 'react-hot-toast';
 import { Show, useAuth, useOrganization, useOrganizationList } from '@clerk/nextjs';
 import CreateWorkspaceModal from './CreateWorkspaceModal';
 
+export const LayoutContext = createContext<{
+    hideSidebarAndNavbar: boolean;
+    setHideSidebarAndNavbar: (val: boolean) => void;
+}>({
+    hideSidebarAndNavbar: false,
+    setHideSidebarAndNavbar: () => {},
+});
+
 interface LayoutShellProps {
   children: React.ReactNode;
 }
@@ -17,6 +25,7 @@ interface LayoutShellProps {
 export default function LayoutShell({ children }: LayoutShellProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [hideSidebarAndNavbar, setHideSidebarAndNavbar] = useState(false);
     const { workspaces, loading } = useSelector((state: any) => state.workspace);
     const { isLoaded, isSignedIn, getToken } = useAuth();
     const { organization } = useOrganization();
@@ -99,25 +108,35 @@ export default function LayoutShell({ children }: LayoutShellProps) {
     const hasNoWorkspaces = (workspaces.length === 0) || (isOrgListLoaded && userMemberships.data && userMemberships.data.length === 0);
 
     return (
-        <div className="flex bg-white dark:bg-zinc-950 text-gray-900 dark:text-slate-100 min-h-screen">
-            <Toaster position="top-right" />
-            
-            <Show when="signed-in">
-                {hasNoWorkspaces && <CreateWorkspaceModal />}
-                <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-                <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                    <Navbar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-                    <div className="flex-1 h-full p-6 xl:p-10 xl:px-16 overflow-y-auto no-scrollbar">
+        <LayoutContext.Provider value={{ hideSidebarAndNavbar, setHideSidebarAndNavbar }}>
+            <div className="flex bg-white dark:bg-zinc-950 text-gray-900 dark:text-slate-100 min-h-screen">
+                <Toaster position="top-right" />
+                
+                {hideSidebarAndNavbar ? (
+                    <div className="w-full min-h-screen">
                         {children}
                     </div>
-                </div>
-            </Show>
-            
-            <Show when="signed-out">
-                <div className="w-full min-h-screen">
-                    {children}
-                </div>
-            </Show>
-        </div>
+                ) : (
+                    <>
+                        <Show when="signed-in">
+                            {hasNoWorkspaces && <CreateWorkspaceModal />}
+                            <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+                            <div className="flex-1 flex flex-col h-screen overflow-hidden">
+                                <Navbar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+                                <div className="flex-1 h-full p-6 xl:p-10 xl:px-16 overflow-y-auto no-scrollbar">
+                                    {children}
+                                </div>
+                            </div>
+                        </Show>
+                        
+                        <Show when="signed-out">
+                            <div className="w-full min-h-screen">
+                                {children}
+                            </div>
+                        </Show>
+                    </>
+                )}
+            </div>
+        </LayoutContext.Provider>
     );
 }

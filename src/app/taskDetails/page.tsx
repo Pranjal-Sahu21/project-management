@@ -201,7 +201,7 @@ const TaskDetailsContent = () => {
         <div className="flex flex-col-reverse lg:flex-row gap-6 sm:p-4 text-gray-900 dark:text-zinc-100 max-w-6xl mx-auto">
             {/* Left: Comments / Chatbox */}
             <div className="w-full lg:w-2/3">
-                <div className="p-5 rounded-md border border-gray-300 dark:border-zinc-800 flex flex-col lg:h-[80vh]">
+                <div className="p-5 rounded-md border border-gray-300 dark:border-zinc-800 flex flex-col lg:h-[calc(100vh-180px)]">
                     <h2 className="text-base font-semibold flex items-center gap-2 mb-4 text-gray-900 dark:text-white">
                         <MessageCircle className="size-5" /> Task Discussion ({comments.length})
                     </h2>
@@ -252,11 +252,17 @@ const TaskDetailsContent = () => {
                         <textarea
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleAddComment();
+                                }
+                            }}
                             placeholder="Write a comment..."
                             className="w-full dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-md p-2 text-sm text-gray-900 dark:text-zinc-200 resize-none focus:outline-none focus:ring-1 focus:ring-blue-600"
                             rows={3}
                         />
-                        <button onClick={handleAddComment} className="bg-gradient-to-l from-blue-500 to-blue-600 transition-colors text-white text-sm px-5 py-2 rounded cursor-pointer hover:opacity-90 animate-pulse hover:animate-none" >
+                        <button onClick={handleAddComment} className="bg-gradient-to-l from-blue-500 to-blue-600 transition-colors text-white text-sm px-5 py-2 rounded cursor-pointer hover:opacity-90" >
                             Post
                         </button>
                     </div>
