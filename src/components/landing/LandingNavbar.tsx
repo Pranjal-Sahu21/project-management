@@ -66,7 +66,13 @@ export default function LandingNavbar() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-4">
+            <a
+              href="/sign-in"
+              className="text-white/65 hover:text-white text-sm transition-colors duration-200 cursor-pointer px-3 py-2"
+            >
+              Login
+            </a>
             <a
               href="/sign-up"
               className="group flex items-center gap-1 bg-[#09f] hover:bg-[#0088dd] text-white text-sm px-5 py-2.5 rounded-full transition-colors duration-200 cursor-pointer"
@@ -157,11 +163,24 @@ export default function LandingNavbar() {
               </div>
 
               {/* Mobile CTA */}
-              <div className="px-6 mt-8">
+              <div className="px-6 mt-8 flex flex-col gap-3">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.35, duration: 0.3 }}
+                >
+                  <a
+                    href="/sign-in"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center text-white/65 hover:text-white text-base py-3 transition-colors duration-200 cursor-pointer"
+                  >
+                    Login
+                  </a>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.3 }}
                 >
                   <a
                     href="/sign-up"

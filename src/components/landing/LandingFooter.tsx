@@ -96,13 +96,13 @@ export default function LandingFooter() {
       </div>
 
       {/* Sticky Parallax Logo Text: Sits statically at the bottom (z-10) and is uncovered by scrolling */}
-      <div className="sticky bottom-0 z-10 w-full bg-[#050505] h-[20vh] md:h-[28vh] flex items-center justify-center overflow-hidden select-none">
+      <div className="sticky bottom-0 z-10 w-full bg-[#050505] h-[38vh] md:h-[55vh] flex items-center justify-center overflow-hidden select-none">
         <motion.h1
           initial={{ y: "40%", opacity: 0.2 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-[12vw] sm:text-[14vw] md:text-[15vw] font-bold text-center tracking-tighter leading-none text-[#121213] transition-all duration-700 hover:text-[#09f] hover:drop-shadow-[0_0_35px_rgba(0,153,255,0.25)] font-heading cursor-default"
+          className="text-[30vw] font-bold text-center tracking-tighter leading-none text-[#121213] transition-all duration-700 hover:text-[#09f] hover:drop-shadow-[0_0_35px_rgba(0,153,255,0.25)] font-heading cursor-default w-full"
           style={{
             WebkitTextStroke: "1.2px rgba(255, 255, 255, 0.02)"
           }}

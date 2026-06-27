@@ -1,10 +1,27 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { dummyWorkspaces } from "../assets/assets";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+export const fetchWorkspaces = createAsyncThunk('workspace/fetchWorkspaces', async ({ getToken }) => {
+    try {
+        const token = await getToken();
+        const res = await fetch("/api/workspace", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (!res.ok) {
+            throw new Error("Failed to fetch workspaces");
+        }
+        return await res.json();
+    } catch (error) {
+        console.error("Error in fetchWorkspaces thunk:", error);
+        throw error;
+    }  
+});
 
 const initialState = {
-    workspaces: dummyWorkspaces || [],
-    currentWorkspace: dummyWorkspaces[1],
-    loading: false,
+    workspaces: [],
+    currentWorkspace: null,
+    loading: true,
 };
 
 const workspaceSlice = createSlice({
@@ -13,6 +30,10 @@ const workspaceSlice = createSlice({
     reducers: {
         setWorkspaces: (state, action) => {
             state.workspaces = action.payload;
+            state.loading = false;
+        },
+        setLoading: (state, action) => {
+            state.loading = action.payload;
         },
         setCurrentWorkspace: (state, action) => {
             if (typeof window !== "undefined") {
@@ -119,8 +140,38 @@ const workspaceSlice = createSlice({
                 } : w
             );
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchWorkspaces.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchWorkspaces.fulfilled, (state, action) => {
+                state.workspaces = action.payload;
+                state.loading = false;
+                
+                let savedWsId = null;
+                if (typeof window !== "undefined") {
+                    savedWsId = localStorage.getItem("currentWorkspaceId");
+                }
+                
+                if (savedWsId && action.payload.some((ws) => ws.id === savedWsId)) {
+                    state.currentWorkspace = action.payload.find((ws) => ws.id === savedWsId);
+                } else if (action.payload.length > 0) {
+                    state.currentWorkspace = action.payload[0];
+                    if (typeof window !== "undefined") {
+                        localStorage.setItem("currentWorkspaceId", action.payload[0].id);
+                    }
+                } else {
+                    state.currentWorkspace = null;
+                }
+                state.loading = false;
+            })
+            .addCase(fetchWorkspaces.rejected, (state) => {
+                state.loading = false;
+            });
     }
 });
 
-export const { setWorkspaces, setCurrentWorkspace, addWorkspace, updateWorkspace, deleteWorkspace, addProject, updateProject, addTask, updateTask, deleteTask } = workspaceSlice.actions;
+export const { setWorkspaces, setCurrentWorkspace, addWorkspace, updateWorkspace, deleteWorkspace, addProject, updateProject, addTask, updateTask, deleteTask, setLoading } = workspaceSlice.actions;
 export default workspaceSlice.reducer;

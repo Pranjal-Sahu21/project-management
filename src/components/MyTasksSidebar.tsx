@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { CheckSquareIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import Link from 'next/link';
+import { useUser } from '@clerk/nextjs';
 
 function MyTasksSidebar() {
-    const user = { id: 'user_1' };
+    const { user } = useUser();
 
     const { currentWorkspace } = useSelector((state: any) => state.workspace);
     const [showMyTasks, setShowMyTasks] = useState(false);
@@ -29,9 +30,19 @@ function MyTasksSidebar() {
 
     const fetchUserTasks = () => {
         const userId = user?.id || '';
-        if (!userId || !currentWorkspace) return;
-        const currentWorkspaceTasks = currentWorkspace.projects.flatMap((project: any) => {
-            return project.tasks.filter((task: any) => task?.assignee?.id === userId);
+        if (!userId || !currentWorkspace) {
+            setMyTasks([]);
+            return;
+        }
+
+        // Filter projects assigned to the user
+        const assignedProjects = currentWorkspace.projects.filter((project: any) =>
+            project.members?.some((member: any) => member.userId === userId)
+        );
+
+        // Filter tasks assigned to the user in those projects
+        const currentWorkspaceTasks = assignedProjects.flatMap((project: any) => {
+            return (project.tasks || []).filter((task: any) => task?.assigneeId === userId);
         });
 
         setMyTasks(currentWorkspaceTasks);
@@ -39,7 +50,7 @@ function MyTasksSidebar() {
 
     useEffect(() => {
         fetchUserTasks();
-    }, [currentWorkspace]);
+    }, [currentWorkspace, user]);
 
     return (
         <div className="mt-6 px-3">

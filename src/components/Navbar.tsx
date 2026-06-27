@@ -21,6 +21,7 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const searchRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Close dropdown on click outside
     useEffect(() => {
@@ -31,6 +32,18 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Focus input on Ctrl + K
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+                e.preventDefault();
+                inputRef.current?.focus();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
     // Get matching projects and tasks
@@ -71,6 +84,7 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                     <div ref={searchRef} className="relative flex-1 max-w-sm">
                         <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-400 size-3.5" />
                         <input
+                            ref={inputRef}
                             type="text"
                             placeholder="Search projects, tasks..."
                             value={searchQuery}
@@ -79,8 +93,11 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                                 setIsDropdownOpen(true);
                             }}
                             onFocus={() => setIsDropdownOpen(true)}
-                            className="pl-8 pr-4 py-2 w-full bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
+                            className="pl-8 pr-12 py-2 w-full bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
+                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 border border-gray-200 dark:border-zinc-700/80 rounded bg-gray-50 dark:bg-zinc-800 text-[10px] text-gray-450 dark:text-zinc-550 font-sans pointer-events-none select-none">
+                            <span className="text-[9px]">Ctrl + K</span>
+                        </div>
 
                         {/* Search Results Dropdown */}
                         {isDropdownOpen && searchQuery.trim() !== "" && (

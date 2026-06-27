@@ -115,19 +115,84 @@ export const syncWorkspaceDeletion = inngest.createFunction(
 );
 
 // Inngest function to save workspace member data to the database
-export const syncWorkspaceMemberCreation = inngest.createFunction(
+export const syncWorkspaceMembershipCreation = inngest.createFunction(
   {
-    id: "sync-workspace-member-from-clerk",
-    triggers: { event: "clerk/organizationInvitation.accepted" },
+    id: "sync-workspace-membership-from-clerk",
+    triggers: { event: "clerk/organizationMembership.created" },
   },
   async ({ event }) => {
     const { data } = event;
-    await prisma.workspaceMember.create({
-      data: {
-        userId: data.user_id,
-        workspaceId: data.organization_id,
-        role: String(data.role_name).toUpperCase(),
+    const userId = data.public_user_data?.user_id;
+    const workspaceId = data.organization?.id;
+    const role = data.role === "org:admin" ? "ADMIN" : "MEMBER";
+
+    if (!userId || !workspaceId) return;
+
+    // Check if membership already exists to avoid duplicate constraint errors
+    const exists = await prisma.workspaceMember.findUnique({
+      where: {
+        userId_workspaceId: { userId, workspaceId },
       },
     });
+
+    if (!exists) {
+      await prisma.workspaceMember.create({
+        data: {
+          userId,
+          workspaceId,
+          role,
+        },
+      });
+    }
+  },
+);
+
+// Inngest function to update workspace member role in the database
+export const syncWorkspaceMembershipUpdation = inngest.createFunction(
+  {
+    id: "update-workspace-membership-from-clerk",
+    triggers: { event: "clerk/organizationMembership.updated" },
+  },
+  async ({ event }) => {
+    const { data } = event;
+    const userId = data.public_user_data?.user_id;
+    const workspaceId = data.organization?.id;
+    const role = data.role === "org:admin" ? "ADMIN" : "MEMBER";
+
+    if (!userId || !workspaceId) return;
+
+    await prisma.workspaceMember.update({
+      where: {
+        userId_workspaceId: { userId, workspaceId },
+      },
+      data: {
+        role,
+      },
+    });
+  },
+);
+
+// Inngest function to delete workspace member from the database
+export const syncWorkspaceMembershipDeletion = inngest.createFunction(
+  {
+    id: "delete-workspace-membership-with-clerk",
+    triggers: { event: "clerk/organizationMembership.deleted" },
+  },
+  async ({ event }) => {
+    const { data } = event;
+    const userId = data.public_user_data?.user_id;
+    const workspaceId = data.organization?.id;
+
+    if (!userId || !workspaceId) return;
+
+    try {
+      await prisma.workspaceMember.delete({
+        where: {
+          userId_workspaceId: { userId, workspaceId },
+        },
+      });
+    } catch (e) {
+      // Ignore if already deleted
+    }
   },
 );

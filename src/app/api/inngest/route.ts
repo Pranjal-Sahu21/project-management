@@ -6,7 +6,9 @@ import {
   syncUserUpdation,
   syncWorkspaceCreation,
   syncWorkspaceDeletion,
-  syncWorkspaceMemberCreation,
+  syncWorkspaceMembershipCreation,
+  syncWorkspaceMembershipUpdation,
+  syncWorkspaceMembershipDeletion,
   syncWorkspaceUpdation,
 } from "@/inngest/functions";
 
@@ -19,6 +21,8 @@ export const { GET, POST, PUT } = serve({
     syncWorkspaceCreation,
     syncWorkspaceUpdation,
     syncWorkspaceDeletion,
-    syncWorkspaceMemberCreation,
+    syncWorkspaceMembershipCreation,
+    syncWorkspaceMembershipUpdation,
+    syncWorkspaceMembershipDeletion,
   ],
 });

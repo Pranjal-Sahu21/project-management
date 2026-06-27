@@ -3,20 +3,27 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Clock, AlertTriangle, User } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useUser } from "@clerk/nextjs";
 
 export default function TasksSummary() {
     const { currentWorkspace } = useSelector((state: any) => state.workspace);
-    const user = { id: 'user_1' };
+    const { user } = useUser();
     const [tasks, setTasks] = useState<any[]>([]);
 
-    // Get all tasks for all projects in current workspace
+    // Get tasks for assigned projects in current workspace
     useEffect(() => {
-        if (currentWorkspace) {
-            setTasks(currentWorkspace.projects.flatMap((project: any) => project.tasks));
+        const userId = user?.id;
+        if (currentWorkspace && userId) {
+            const assignedProjects = currentWorkspace.projects.filter((project: any) =>
+                project.members?.some((member: any) => member.userId === userId)
+            );
+            setTasks(assignedProjects.flatMap((project: any) => project.tasks || []));
+        } else {
+            setTasks([]);
         }
-    }, [currentWorkspace]);
+    }, [currentWorkspace, user]);
 
-    const myTasks = tasks.filter(i => i.assigneeId === user.id);
+    const myTasks = tasks.filter(i => i.assigneeId === user?.id);
     const overdueTasks = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'DONE');
     const inProgressIssues = tasks.filter(i => i.status === 'IN_PROGRESS');
 

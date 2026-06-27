@@ -5,10 +5,10 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadTheme } from '../features/themeSlice';
-import { setWorkspaces, setCurrentWorkspace } from '../features/workspaceSlice';
-import { Loader2Icon } from 'lucide-react';
+import { fetchWorkspaces, setLoading } from '../features/workspaceSlice';
 import { Toaster } from 'react-hot-toast';
-import { Show } from '@clerk/nextjs';
+import { Show, useAuth } from '@clerk/nextjs';
+import CreateWorkspaceModal from './CreateWorkspaceModal';
 
 interface LayoutShellProps {
   children: React.ReactNode;
@@ -17,7 +17,8 @@ interface LayoutShellProps {
 export default function LayoutShell({ children }: LayoutShellProps) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
-    const { loading } = useSelector((state: any) => state.workspace);
+    const { workspaces, loading } = useSelector((state: any) => state.workspace);
+    const { isLoaded, isSignedIn, getToken } = useAuth();
     const dispatch = useDispatch();
 
     // Initial load of theme and mount flag
@@ -28,36 +29,19 @@ export default function LayoutShell({ children }: LayoutShellProps) {
 
     // Load workspaces from backend API on mount
     useEffect(() => {
-        if (isMounted) {
-            const fetchWorkspaces = async () => {
-                try {
-                    const res = await fetch("/api/workspace");
-                    if (res.ok) {
-                        const data = await res.json();
-                        dispatch(setWorkspaces(data));
-                        
-                        // Restore current workspace from localStorage if possible
-                        const savedWsId = localStorage.getItem("currentWorkspaceId");
-                        if (savedWsId && data.some((ws: any) => ws.id === savedWsId)) {
-                            dispatch(setCurrentWorkspace(savedWsId));
-                        } else if (data.length > 0) {
-                            dispatch(setCurrentWorkspace(data[0].id));
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error fetching workspaces:", error);
-                }
-            };
-            fetchWorkspaces();
+        if (isMounted && isLoaded) {
+            if (isSignedIn) {
+                dispatch((fetchWorkspaces as any)({ getToken }));
+            } else {
+                // If user is not signed in, disable loading screen right away
+                dispatch(setLoading(false));
+            }
         }
-    }, [isMounted, dispatch]);
+    }, [isMounted, isLoaded, isSignedIn, dispatch]);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-white dark:bg-zinc-950">
-                <Loader2Icon className="size-7 text-blue-500 animate-spin" />
-            </div>
-        );
+    // If Clerk is still loading, show a blank background
+    if (!isLoaded || (isSignedIn && loading)) {
+        return <div className="h-screen bg-white dark:bg-zinc-950" />;
     }
 
     if (!isMounted) {
@@ -76,6 +60,7 @@ export default function LayoutShell({ children }: LayoutShellProps) {
             <Toaster position="top-right" />
             
             <Show when="signed-in">
+                {workspaces.length === 0 && <CreateWorkspaceModal />}
                 <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
                 <div className="flex-1 flex flex-col h-screen overflow-hidden">
                     <Navbar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
