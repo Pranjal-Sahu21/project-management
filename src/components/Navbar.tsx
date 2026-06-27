@@ -21,8 +21,14 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [placeholder, setPlaceholder] = useState("Search...");
+    const [activeIndex, setActiveIndex] = useState(-1);
     const searchRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Reset active index when search query changes
+    useEffect(() => {
+        setActiveIndex(-1);
+    }, [searchQuery]);
 
     // Dynamic placeholder on mobile resize
     useEffect(() => {
@@ -85,6 +91,37 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
 
     const hasResults = filteredProjects.length > 0 || filteredTasks.length > 0;
 
+    const combinedResults = [
+        ...filteredProjects.map((p: any) => ({ ...p, searchType: "project" })),
+        ...filteredTasks.map((t: any) => ({ ...t, searchType: "task" }))
+    ];
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!isDropdownOpen || combinedResults.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setActiveIndex((prev) => (prev + 1) % combinedResults.length);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setActiveIndex((prev) => (prev - 1 + combinedResults.length) % combinedResults.length);
+        } else if (e.key === "Enter") {
+            if (activeIndex >= 0 && activeIndex < combinedResults.length) {
+                e.preventDefault();
+                const selected = combinedResults[activeIndex];
+                if (selected.searchType === "project") {
+                    router.push(`/projectsDetail?id=${selected.id}`);
+                } else {
+                    router.push(`/taskDetails?projectId=${selected.projectId}&taskId=${selected.id}`);
+                }
+                setSearchQuery("");
+                setIsDropdownOpen(false);
+            }
+        } else if (e.key === "Escape") {
+            setIsDropdownOpen(false);
+        }
+    };
+
     return (
         <div className="w-full bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 xl:px-16 py-3 flex-shrink-0">
             <div className="flex items-center justify-between max-w-6xl mx-auto gap-4">
@@ -108,9 +145,10 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                                 setIsDropdownOpen(true);
                             }}
                             onFocus={() => setIsDropdownOpen(true)}
+                            onKeyDown={handleSearchKeyDown}
                             className="pl-8 pr-12 py-2 w-full bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
-                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 border border-gray-200 dark:border-zinc-700/80 rounded bg-gray-50 dark:bg-zinc-800 text-[10px] text-gray-450 dark:text-zinc-550 font-sans pointer-events-none select-none">
+                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 border border-gray-200 dark:border-zinc-700/80 rounded bg-gray-50 dark:bg-zinc-800 text-[10px] text-gray-450 dark:text-zinc-555 font-sans pointer-events-none select-none">
                             <span className="text-[9px]">Ctrl + K</span>
                         </div>
 
@@ -122,58 +160,66 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                                         {/* Projects Section */}
                                         {filteredProjects.length > 0 && (
                                             <div className="mb-2">
-                                                <div className="px-3 py-1 text-xs font-semibold text-gray-450 dark:text-zinc-550 uppercase tracking-wider">
+                                                <div className="px-3 py-1 text-xs font-semibold text-gray-450 dark:text-zinc-555 uppercase tracking-wider">
                                                     Projects
                                                 </div>
-                                                {filteredProjects.map((project: any) => (
-                                                    <button
-                                                        key={project.id}
-                                                        onClick={() => {
-                                                            router.push(`/projectsDetail?id=${project.id}`);
-                                                            setSearchQuery("");
-                                                            setIsDropdownOpen(false);
-                                                        }}
-                                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-900 flex items-center gap-2.5 transition-colors cursor-pointer"
-                                                    >
-                                                        <Folder className="size-4 text-blue-500 shrink-0" />
-                                                        <div className="min-w-0">
-                                                            <div className="font-medium truncate">{project.name}</div>
-                                                            {project.description && (
-                                                                <div className="text-xs text-gray-500 dark:text-zinc-500 truncate">
-                                                                    {project.description}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </button>
-                                                ))}
+                                                {filteredProjects.map((project: any, pIdx: number) => {
+                                                    const overallIdx = pIdx;
+                                                    const isActive = overallIdx === activeIndex;
+                                                    return (
+                                                        <button
+                                                            key={project.id}
+                                                            onClick={() => {
+                                                                router.push(`/projectsDetail?id=${project.id}`);
+                                                                setSearchQuery("");
+                                                                setIsDropdownOpen(false);
+                                                            }}
+                                                            className={`w-full text-left px-4 py-2 flex items-center gap-2.5 transition-colors cursor-pointer ${isActive ? "bg-gray-100 dark:bg-zinc-800/85 text-zinc-950 dark:text-white font-medium" : "hover:bg-gray-55 dark:hover:bg-zinc-900/60"}`}
+                                                        >
+                                                            <Folder className="size-4 text-blue-500 shrink-0" />
+                                                            <div className="min-w-0">
+                                                                <div className="font-medium truncate">{project.name}</div>
+                                                                {project.description && (
+                                                                    <div className="text-xs text-gray-500 dark:text-zinc-500 truncate">
+                                                                        {project.description}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         )}
 
                                         {/* Tasks Section */}
                                         {filteredTasks.length > 0 && (
                                             <div>
-                                                <div className="px-3 py-1 text-xs font-semibold text-gray-450 dark:text-zinc-550 uppercase tracking-wider">
+                                                <div className="px-3 py-1 text-xs font-semibold text-gray-450 dark:text-zinc-555 uppercase tracking-wider">
                                                     Tasks
                                                 </div>
-                                                {filteredTasks.map((task: any) => (
-                                                    <button
-                                                        key={task.id}
-                                                        onClick={() => {
-                                                            router.push(`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`);
-                                                            setSearchQuery("");
-                                                            setIsDropdownOpen(false);
-                                                        }}
-                                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-900 flex items-center gap-2.5 transition-colors cursor-pointer"
-                                                    >
-                                                        <CheckSquare className="size-4 text-green-500 shrink-0" />
-                                                        <div className="min-w-0">
-                                                            <div className="font-medium truncate">{task.title}</div>
-                                                            <div className="text-xs text-gray-500 dark:text-zinc-500 truncate">
-                                                                Project: {task.projectName}
+                                                {filteredTasks.map((task: any, tIdx: number) => {
+                                                    const overallIdx = filteredProjects.length + tIdx;
+                                                    const isActive = overallIdx === activeIndex;
+                                                    return (
+                                                        <button
+                                                            key={task.id}
+                                                            onClick={() => {
+                                                                router.push(`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`);
+                                                                setSearchQuery("");
+                                                                setIsDropdownOpen(false);
+                                                            }}
+                                                            className={`w-full text-left px-4 py-2 flex items-center gap-2.5 transition-colors cursor-pointer ${isActive ? "bg-gray-100 dark:bg-zinc-800/85 text-zinc-950 dark:text-white font-medium" : "hover:bg-gray-55 dark:hover:bg-zinc-900/60"}`}
+                                                        >
+                                                            <CheckSquare className="size-4 text-green-500 shrink-0" />
+                                                            <div className="min-w-0">
+                                                                <div className="font-medium truncate">{task.title}</div>
+                                                                <div className="text-xs text-gray-500 dark:text-zinc-500 truncate">
+                                                                    Project: {task.projectName}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </button>
-                                                ))}
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </>

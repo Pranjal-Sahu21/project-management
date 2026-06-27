@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { CalendarIcon, MessageCircle, PenIcon, XIcon } from "lucide-react";
+import { CalendarIcon, MessageCircle, PenIcon, XIcon, Trash2 } from "lucide-react";
 import { assets } from "../../assets/assets";
 import { useUser } from "@clerk/nextjs";
 import { updateTask } from "../../features/workspaceSlice";
@@ -128,6 +128,27 @@ const TaskDetailsContent = () => {
         }
     };
 
+    const handleDeleteComment = async (commentId: string) => {
+        if (!confirm("Are you sure you want to delete this comment?")) return;
+        try {
+            toast.loading("Deleting comment...");
+            const res = await fetch(`/api/comments?commentId=${commentId}`, {
+                method: "DELETE",
+            });
+            toast.dismiss();
+            if (res.ok) {
+                toast.success("Comment deleted.");
+                setComments((prev) => prev.filter((c) => c.id !== commentId));
+            } else {
+                const data = await res.json();
+                throw new Error(data.error || "Failed to delete comment");
+            }
+        } catch (error: any) {
+            toast.dismiss();
+            toast.error(error.message || "Failed to delete comment");
+        }
+    };
+
     const handleEditSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editForm.title.trim()) {
@@ -229,12 +250,23 @@ const TaskDetailsContent = () => {
                                     const commentUserImg = comment.user.image?.src || comment.user.image;
                                     return (
                                         <div key={comment.id} className={`sm:max-w-[80%] dark:bg-gradient-to-br dark:from-zinc-800 dark:to-zinc-900 border border-gray-300 dark:border-zinc-700 p-3 rounded-md ${comment.user.id === user?.id ? "ml-auto" : "mr-auto"}`} >
-                                            <div className="flex items-center gap-2 mb-1 text-sm text-gray-500 dark:text-zinc-400">
-                                                {commentUserImg && <img src={commentUserImg} alt="avatar" className="size-5 rounded-full" />}
-                                                <span className="font-semibold text-gray-900 dark:text-white">{comment.user.name}</span>
-                                                <span className="text-xs text-gray-400 dark:text-zinc-550">
-                                                    • {format(new Date(comment.createdAt), "dd MMM yyyy, HH:mm")}
-                                                </span>
+                                            <div className="flex items-center justify-between gap-4 mb-1 text-sm text-gray-500 dark:text-zinc-400">
+                                                <div className="flex items-center gap-2">
+                                                    {commentUserImg && <img src={commentUserImg} alt="avatar" className="size-5 rounded-full" />}
+                                                    <span className="font-semibold text-gray-900 dark:text-white">{comment.user.name}</span>
+                                                    <span className="text-xs text-gray-400 dark:text-zinc-555">
+                                                        • {format(new Date(comment.createdAt), "dd MMM yyyy, HH:mm")}
+                                                    </span>
+                                                </div>
+                                                {(comment.user.id === user?.id || isAdmin) && (
+                                                    <button
+                                                        onClick={() => handleDeleteComment(comment.id)}
+                                                        className="text-zinc-400 hover:text-red-500 dark:text-zinc-500 dark:hover:text-red-400 transition cursor-pointer p-0.5 rounded"
+                                                        title="Delete comment"
+                                                    >
+                                                        <Trash2 className="size-3.5" />
+                                                    </button>
+                                                )}
                                             </div>
                                             <p className="text-sm text-gray-900 dark:text-zinc-200">{comment.content}</p>
                                         </div>

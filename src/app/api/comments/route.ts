@@ -103,3 +103,59 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const commentId = searchParams.get("commentId");
+
+    if (!commentId) {
+      return NextResponse.json({ error: "Comment ID is required" }, { status: 400 });
+    }
+
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      include: {
+        task: {
+          include: {
+            project: {
+              select: { workspaceId: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!comment) {
+      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+    }
+
+    if (comment.userId !== userId) {
+      const member = await prisma.workspaceMember.findUnique({
+        where: {
+          userId_workspaceId: {
+            userId,
+            workspaceId: comment.task.project.workspaceId,
+          },
+        },
+      });
+
+      if (!member || member.role !== "ADMIN") {
+        return NextResponse.json({ error: "Forbidden: You cannot delete this comment" }, { status: 403 });
+      }
+    }
+
+    await prisma.comment.delete({
+      where: { id: commentId },
+    });
+
+    return NextResponse.json({ success: true, message: "Comment deleted successfully" });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
