@@ -3,7 +3,7 @@
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CalendarIcon, MessageCircle, PenIcon, XIcon } from "lucide-react";
 import { assets } from "../../assets/assets";
@@ -22,6 +22,11 @@ const TaskDetailsContent = () => {
     const [comments, setComments] = useState<any[]>([]);
     const [newComment, setNewComment] = useState("");
     const [loading, setLoading] = useState(true);
+    const [commentsLoading, setCommentsLoading] = useState(true);
+
+    const commentsEndRef = useRef<HTMLDivElement>(null);
+    const prevCommentsLengthRef = useRef(0);
+    const loadedTaskIdRef = useRef<string | null>(null);
 
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -39,16 +44,27 @@ const TaskDetailsContent = () => {
     const currentUserMember = currentWorkspace?.members?.find((m: any) => m.userId === user?.id);
     const isAdmin = currentUserMember?.role === "ADMIN";
 
-    const fetchComments = async () => {
+    const fetchComments = async (isInitial = false) => {
         if (!taskId) return;
+        
+        const shouldShowLoading = isInitial && loadedTaskIdRef.current !== taskId;
+        if (shouldShowLoading) {
+            setCommentsLoading(true);
+        }
+
         try {
             const res = await fetch(`/api/comments?taskId=${taskId}`);
             if (res.ok) {
                 const data = await res.json();
                 setComments(data);
+                loadedTaskIdRef.current = taskId;
             }
         } catch (error) {
             console.error("Failed to fetch comments", error);
+        } finally {
+            if (shouldShowLoading) {
+                setCommentsLoading(false);
+            }
         }
     };
 
@@ -162,11 +178,19 @@ const TaskDetailsContent = () => {
 
     useEffect(() => {
         if (taskId && task) {
-            fetchComments();
+            fetchComments(true);
             const interval = setInterval(() => { fetchComments(); }, 3000);
             return () => clearInterval(interval);
         }
     }, [taskId, task]);
+
+    // Scroll to bottom of comments when length changes
+    useEffect(() => {
+        if (comments.length > 0 && comments.length !== prevCommentsLengthRef.current) {
+            commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            prevCommentsLengthRef.current = comments.length;
+        }
+    }, [comments]);
 
     if (loading) return <div className="text-gray-500 dark:text-zinc-400 px-4 py-6">Loading task details...</div>;
     if (!task) return <div className="text-red-500 px-4 py-6">Task not found.</div>;
@@ -182,8 +206,24 @@ const TaskDetailsContent = () => {
                         <MessageCircle className="size-5" /> Task Discussion ({comments.length})
                     </h2>
 
-                    <div className="flex-1 md:overflow-y-auto no-scrollbar mb-4">
-                        {comments.length > 0 ? (
+                    <div className="flex-1 overflow-y-auto mb-4 pr-1">
+                        {commentsLoading ? (
+                            <div className="flex flex-col gap-4 mb-6 mr-2">
+                                {[1, 2, 3].map((n) => (
+                                    <div key={n} className={`w-[70%] border border-zinc-200 dark:border-zinc-800 p-3 rounded-md animate-pulse ${n % 2 === 0 ? "ml-auto bg-zinc-100/50 dark:bg-zinc-800/40" : "mr-auto bg-zinc-100/50 dark:bg-zinc-800/40"}`}>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className="size-5 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                                            <div className="h-3 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                            <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="h-3 w-full bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                            <div className="h-3 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : comments.length > 0 ? (
                             <div className="flex flex-col gap-4 mb-6 mr-2">
                                 {comments.map((comment) => {
                                     const commentUserImg = comment.user.image?.src || comment.user.image;
@@ -200,6 +240,7 @@ const TaskDetailsContent = () => {
                                         </div>
                                     );
                                 })}
+                                <div ref={commentsEndRef} />
                             </div>
                         ) : (
                             <p className="text-gray-600 dark:text-zinc-500 mb-4 text-sm">No comments yet. Be the first!</p>

@@ -41,14 +41,7 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }: InviteMemberDialo
             });
 
             if (res.ok) {
-                const newMember = await res.json();
-                const updatedWorkspace = {
-                    ...currentWorkspace,
-                    members: [...currentWorkspace.members, newMember]
-                };
-
-                dispatch(updateWorkspace(updatedWorkspace));
-                toast.success("Invitation sent & member added successfully!");
+                toast.success("Invitation email sent successfully!");
                 setIsDialogOpen(false);
                 setFormData({
                     email: "",

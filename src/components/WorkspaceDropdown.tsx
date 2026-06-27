@@ -26,6 +26,13 @@ function WorkspaceDropdown() {
         },
     });
 
+    // Revalidate memberships list whenever active organization changes (e.g. when leaving an organization)
+    useEffect(() => {
+        if (userMemberships.revalidate) {
+            userMemberships.revalidate();
+        }
+    }, [organization?.id]);
+
     // Close dropdown on outside click
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -49,11 +56,17 @@ function WorkspaceDropdown() {
         prevOrgIdRef.current = organization?.id;
     }, [organization, isCreateOpen, dispatch, getToken]);
 
-    const onSelectWorkspace = async (organizationId: string) => {
+    const onSelectWorkspace = async (ws: any) => {
         if (setActive) {
-            await setActive({ organization: organizationId });
+            await setActive({ organization: ws.id });
         }
-        dispatch(setCurrentWorkspace(organizationId));
+        dispatch(setCurrentWorkspace({
+            id: ws.id,
+            name: ws.name,
+            image_url: ws.imageUrl,
+            projects: [],
+            members: []
+        }));
         setIsOpen(false);
         router.push('/');
     };
@@ -89,7 +102,7 @@ function WorkspaceDropdown() {
                             const wsImg = ws.imageUrl;
                             const isAdmin = membership.role === "org:admin" || membership.role === "admin";
                             return (
-                                <div key={ws.id} onClick={() => onSelectWorkspace(ws.id)} className="flex items-center gap-3 p-2 cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-zinc-800" >
+                                <div key={ws.id} onClick={() => onSelectWorkspace(ws)} className="flex items-center gap-3 p-2 cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-zinc-800" >
                                     {wsImg && <img src={wsImg} alt={ws.name} className="w-6 h-6 rounded" />}
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium text-gray-800 dark:text-white truncate">

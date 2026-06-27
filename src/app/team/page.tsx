@@ -8,14 +8,30 @@ import {
   Activity,
   ClipboardList,
 } from "lucide-react";
-import InviteMemberDialog from "../../components/InviteMemberDialog";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useAuth, useOrganization } from "@clerk/nextjs";
+import { fetchWorkspaces } from "../../features/workspaceSlice";
+import { assets } from "../../assets/assets";
 
 export default function TeamPage() {
+  const dispatch = useDispatch();
+  const { getToken } = useAuth();
+
+  const { organization, membership, memberships, invitations } = useOrganization({
+    memberships: {
+      infinite: true,
+    },
+    invitations: {
+      infinite: true,
+    },
+  });
+
+  const isAdmin = membership?.role === "org:admin";
+
   const [tasks, setTasks] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
+
   const currentWorkspace = useSelector(
     (state: any) => state?.workspace?.currentWorkspace || null,
   );
@@ -23,12 +39,59 @@ export default function TeamPage() {
 
   const filteredUsers = users.filter(
     (user: any) =>
-      user?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user?.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()),
+      user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user?.email?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
+  // Load workspaces on mount
   useEffect(() => {
-    setUsers(currentWorkspace?.members || []);
+    dispatch((fetchWorkspaces as any)({ getToken }));
+  }, [dispatch, getToken]);
+
+  // Synchronize users list using Clerk memberships and pending invitations
+  useEffect(() => {
+    const list: any[] = [];
+
+    if (memberships?.data) {
+      memberships.data.forEach((mem) => {
+        const u = mem.publicUserData;
+        list.push({
+          id: mem.id,
+          userId: u.userId,
+          name: u.firstName || u.lastName ? `${u.firstName || ""} ${u.lastName || ""}`.trim() : u.identifier,
+          email: u.identifier,
+          image: u.imageUrl,
+          role: mem.role === "org:admin" ? "ADMIN" : "MEMBER",
+          isPending: false,
+        });
+      });
+    }
+
+    if (invitations?.data) {
+      invitations.data.forEach((inv) => {
+        if (inv.status === "pending") {
+          list.push({
+            id: inv.id,
+            userId: null,
+            name: inv.emailAddress.split("@")[0],
+            email: inv.emailAddress,
+            image: null,
+            role: inv.role === "org:admin" ? "ADMIN" : "MEMBER",
+            isPending: true,
+          });
+        }
+      });
+    }
+
+    const listKey = JSON.stringify(list.map(u => ({ id: u.id, role: u.role, isPending: u.isPending })));
+    const currentKey = JSON.stringify(users.map(u => ({ id: u.id, role: u.role, isPending: u.isPending })));
+    if (listKey !== currentKey) {
+      setUsers(list);
+    }
+  }, [memberships?.data, invitations?.data, users]);
+
+  // Synchronize task counts
+  useEffect(() => {
     setTasks(
       currentWorkspace?.projects?.reduce(
         (acc: any[], project: any) => [...acc, ...project.tasks],
@@ -49,16 +112,6 @@ export default function TeamPage() {
             Manage team members and their contributions
           </p>
         </div>
-        <button
-          onClick={() => setIsDialogOpen(true)}
-          className="flex items-center px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition cursor-pointer"
-        >
-          <UserPlus className="w-4 h-4 mr-2" /> Invite Member
-        </button>
-        <InviteMemberDialog
-          isDialogOpen={isDialogOpen}
-          setIsDialogOpen={setIsDialogOpen}
-        />
       </div>
 
       {/* Stats Cards */}
@@ -169,7 +222,7 @@ export default function TeamPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
                   {filteredUsers.map((user: any) => {
-                    const userImg = user.user.image?.src || user.user.image;
+                    const userImg = user.image || assets.profile_img_a;
                     return (
                       <tr
                         key={user.id}
@@ -179,27 +232,34 @@ export default function TeamPage() {
                           {userImg && (
                             <img
                               src={userImg}
-                              alt={user.user.name}
+                              alt={user.name}
                               className="size-7 rounded-full bg-gray-200 dark:bg-zinc-800 animate-pulse-once"
                             />
                           )}
                           <span className="text-sm font-semibold text-zinc-800 dark:text-white truncate">
-                            {user.user?.name || "Unknown User"}
+                            {user.name}
                           </span>
                         </td>
                         <td className="px-6 py-2.5 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">
-                          {user.user.email}
+                          {user.email}
                         </td>
                         <td className="px-6 py-2.5 whitespace-nowrap">
-                          <span
-                            className={`px-2 py-1 text-xs rounded-md font-semibold ${
-                              user.role === "ADMIN"
-                                ? "bg-purple-100 dark:bg-purple-500/20 text-purple-500 dark:text-purple-400"
-                                : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
-                            }`}
-                          >
-                            {user.role || "User"}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`px-2 py-1 text-xs rounded-md font-semibold ${
+                                user.role === "ADMIN"
+                                  ? "bg-purple-100 dark:bg-purple-500/20 text-purple-500 dark:text-purple-400"
+                                  : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
+                              }`}
+                            >
+                              {user.role}
+                            </span>
+                            {user.isPending && (
+                              <span className="px-2 py-1 text-xs rounded-md font-semibold bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                                Pending
+                              </span>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -211,7 +271,7 @@ export default function TeamPage() {
             {/* Mobile Cards */}
             <div className="sm:hidden space-y-3">
               {filteredUsers.map((user: any) => {
-                const userImg = user.user.image?.src || user.user.image;
+                const userImg = user.image || assets.profile_img_a;
                 return (
                   <div
                     key={user.id}
@@ -221,20 +281,20 @@ export default function TeamPage() {
                       {userImg && (
                         <img
                           src={userImg}
-                          alt={user.user.name}
+                          alt={user.name}
                           className="size-9 rounded-full bg-gray-200 dark:bg-zinc-800"
                         />
                       )}
                       <div>
                         <p className="font-semibold text-gray-900 dark:text-white">
-                          {user.user?.name || "Unknown User"}
+                          {user.name}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-zinc-400">
-                          {user.user.email}
+                          {user.email}
                         </p>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-2">
                       <span
                         className={`px-2 py-1 text-xs rounded-md font-semibold ${
                           user.role === "ADMIN"
@@ -242,8 +302,13 @@ export default function TeamPage() {
                             : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
                         }`}
                       >
-                        {user.role || "User"}
+                        {user.role}
                       </span>
+                      {user.isPending && (
+                        <span className="px-2 py-1 text-xs rounded-md font-semibold bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                          Pending
+                        </span>
+                      )}
                     </div>
                   </div>
                 );

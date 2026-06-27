@@ -20,8 +20,23 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [placeholder, setPlaceholder] = useState("Search...");
     const searchRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Dynamic placeholder on mobile resize
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 640) {
+                setPlaceholder("Search...");
+            } else {
+                setPlaceholder("Search projects, tasks...");
+            }
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // Close dropdown on click outside
     useEffect(() => {
@@ -72,7 +87,7 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
 
     return (
         <div className="w-full bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 xl:px-16 py-3 flex-shrink-0">
-            <div className="flex items-center justify-between max-w-6xl mx-auto">
+            <div className="flex items-center justify-between max-w-6xl mx-auto gap-4">
                 {/* Left section */}
                 <div className="flex items-center gap-4 min-w-0 flex-1">
                     {/* Sidebar Trigger */}
@@ -86,7 +101,7 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                         <input
                             ref={inputRef}
                             type="text"
-                            placeholder="Search projects, tasks..."
+                            placeholder={placeholder}
                             value={searchQuery}
                             onChange={(e) => {
                                 setSearchQuery(e.target.value);
@@ -95,7 +110,7 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                             onFocus={() => setIsDropdownOpen(true)}
                             className="pl-8 pr-12 py-2 w-full bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
-                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 border border-gray-200 dark:border-zinc-700/80 rounded bg-gray-50 dark:bg-zinc-800 text-[10px] text-gray-450 dark:text-zinc-550 font-sans pointer-events-none select-none">
+                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 border border-gray-200 dark:border-zinc-700/80 rounded bg-gray-50 dark:bg-zinc-800 text-[10px] text-gray-450 dark:text-zinc-550 font-sans pointer-events-none select-none">
                             <span className="text-[9px]">Ctrl + K</span>
                         </div>
 

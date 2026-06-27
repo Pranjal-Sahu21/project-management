@@ -36,10 +36,28 @@ const workspaceSlice = createSlice({
             state.loading = action.payload;
         },
         setCurrentWorkspace: (state, action) => {
+            const payload = action.payload;
             if (typeof window !== "undefined") {
-                localStorage.setItem("currentWorkspaceId", action.payload);
+                if (payload) {
+                    const id = typeof payload === "string" ? payload : payload.id;
+                    localStorage.setItem("currentWorkspaceId", id);
+                } else {
+                    localStorage.removeItem("currentWorkspaceId");
+                }
             }
-            state.currentWorkspace = state.workspaces.find((w) => w.id === action.payload);
+            if (!payload) {
+                state.currentWorkspace = null;
+            } else if (typeof payload === "string") {
+                state.currentWorkspace = state.workspaces.find((w) => w.id === payload) || null;
+            } else {
+                const existing = state.workspaces.find((w) => w.id === payload.id);
+                if (existing) {
+                    state.currentWorkspace = existing;
+                } else {
+                    state.workspaces.push(payload);
+                    state.currentWorkspace = payload;
+                }
+            }
         },
         addWorkspace: (state, action) => {
             state.workspaces.push(action.payload);

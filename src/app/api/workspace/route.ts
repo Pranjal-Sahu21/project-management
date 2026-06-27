@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 import { getUserWorkspaces, createWorkspace, updateWorkspace } from "../../../controllers/workspaceController";
@@ -52,6 +52,61 @@ export async function GET(req: Request) {
           }
         }
       }
+    }
+
+    // Sync Clerk memberships list to DB to self-heal missing workspaces or memberships
+    try {
+      const clerk = await clerkClient();
+      const memberships = await clerk.users.getOrganizationMembershipList({ userId });
+      for (const membership of memberships.data) {
+        const org = membership.organization;
+        if (!org) continue;
+
+        let ws = await prisma.workspace.findUnique({
+          where: { id: org.id },
+        });
+
+        if (!ws) {
+          const slug = org.slug || `${org.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Math.random().toString(36).substring(2, 6)}`;
+          ws = await prisma.workspace.create({
+            data: {
+              id: org.id,
+              name: org.name,
+              slug,
+              ownerId: org.createdBy || userId,
+              image_url: org.imageUrl,
+            },
+          });
+        }
+
+        const role = membership.role === "org:admin" ? "ADMIN" : "MEMBER";
+        const wsMember = await prisma.workspaceMember.findUnique({
+          where: {
+            userId_workspaceId: { userId, workspaceId: org.id },
+          },
+        });
+
+        if (!wsMember) {
+          await prisma.workspaceMember.create({
+            data: {
+              userId,
+              workspaceId: org.id,
+              role,
+            },
+          });
+        } else if (wsMember.role !== role) {
+          await prisma.workspaceMember.update({
+            where: {
+              userId_workspaceId: { userId, workspaceId: org.id },
+            },
+            data: {
+              role,
+            },
+          });
+        }
+      }
+    } catch (syncErr) {
+      console.error("Error syncing memberships in GET /api/workspace:", syncErr);
     }
 
     // Fetch workspaces from Controller

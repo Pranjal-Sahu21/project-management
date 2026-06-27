@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { clerkClient } from "@clerk/nextjs/server";
 
 // Add user to workspace or project, sync/create user on-the-fly
 export async function addMember(
@@ -12,17 +13,17 @@ export async function addMember(
 ) {
   const { email, role, workspaceId, projectId } = data;
 
-  // Ensure target User exists in database
+  // Ensure target User exists in database (only required for project additions)
   let user = await prisma.user.findUnique({
     where: { email },
   });
 
-  if (!user) {
+  if (!user && projectId) {
     throw new Error("No user found with this email address");
   }
 
   // CASE 1: Add member to project
-  if (projectId) {
+  if (projectId && user) {
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: { workspaceId: true },
@@ -109,30 +110,35 @@ export async function addMember(
     }
 
     // Check if already in workspace
-    const wsMemberExists = await prisma.workspaceMember.findUnique({
-      where: {
-        userId_workspaceId: {
-          userId: user.id,
-          workspaceId,
+    if (user) {
+      const wsMemberExists = await prisma.workspaceMember.findUnique({
+        where: {
+          userId_workspaceId: {
+            userId: user.id,
+            workspaceId,
+          },
         },
-      },
-    });
+      });
 
-    if (wsMemberExists) {
-      throw new Error("User is already a workspace member");
+      if (wsMemberExists) {
+        throw new Error("User is already a workspace member");
+      }
     }
 
-    // Add to workspace
-    return await prisma.workspaceMember.create({
-      data: {
-        userId: user.id,
-        workspaceId,
-        role: role || "MEMBER",
-      },
-      include: {
-        user: true,
-      },
-    });
+    // Send Clerk Organization Invitation
+    try {
+      const clerk = await clerkClient();
+      await clerk.organizations.createOrganizationInvitation({
+        organizationId: workspaceId,
+        emailAddress: email,
+        role: role === "ADMIN" ? "org:admin" : "org:member",
+      });
+    } catch (clerkErr: any) {
+      const msg = clerkErr.errors?.[0]?.message || clerkErr.message || "Failed to send invitation via Clerk";
+      throw new Error(msg);
+    }
+
+    return { success: true, invitationSent: true, email };
   }
 
   throw new Error("workspaceId or projectId is required");
