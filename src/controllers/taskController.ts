@@ -98,8 +98,29 @@ export async function updateTask(
     },
   });
 
-  if (!member || member.role !== "ADMIN") {
+  if (!member) {
     throw new Error("Forbidden");
+  }
+
+  if (member.role !== "ADMIN") {
+    // Non-admin can only update the task if they are the assignee
+    if (taskExists.assigneeId !== userId) {
+      throw new Error("Forbidden");
+    }
+
+    // Non-admin is only allowed to update the status field, and not other details
+    const hasOtherChanges = 
+      (title !== undefined && title !== taskExists.title) ||
+      (description !== undefined && description !== taskExists.description) ||
+      (type !== undefined && type !== taskExists.type) ||
+      (priority !== undefined && priority !== taskExists.priority) ||
+      (assigneeId !== undefined && assigneeId !== taskExists.assigneeId) ||
+      (due_date !== undefined && 
+       ((due_date === null || due_date === "") ? taskExists.due_date !== null : (taskExists.due_date ? new Date(due_date).toISOString() !== new Date(taskExists.due_date).toISOString() : true)));
+
+    if (hasOtherChanges) {
+      throw new Error("Forbidden");
+    }
   }
 
   return await prisma.task.update({

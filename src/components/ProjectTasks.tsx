@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useUser, useOrganization } from "@clerk/nextjs";
 import { deleteTask, updateTask } from "../features/workspaceSlice";
 import { Bug, CalendarIcon, GitCommit, MessageSquare, Square, Trash, XIcon, Zap } from "lucide-react";
 
@@ -29,7 +30,11 @@ interface ProjectTasksProps {
 const ProjectTasks = ({ tasks }: ProjectTasksProps) => {
     const dispatch = useDispatch();
     const router = useRouter();
+    const { user } = useUser();
+    const { membership } = useOrganization();
     const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+
+    const isAdmin = membership?.role === "org:admin";
 
     const [filters, setFilters] = useState({
         status: "",
@@ -214,7 +219,7 @@ const ProjectTasks = ({ tasks }: ProjectTasksProps) => {
                                                     </span>
                                                 </td>
                                                 <td onClick={e => e.stopPropagation()} className="px-4 py-2">
-                                                    <select name="status" onChange={(e) => handleStatusChange(task.id, e.target.value)} value={task.status} className="bg-white dark:bg-zinc-800 group-hover:ring ring-zinc-100 dark:group-hover:ring-zinc-800 outline-none px-2 pr-4 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer" >
+                                                    <select name="status" onChange={(e) => handleStatusChange(task.id, e.target.value)} value={task.status} disabled={!isAdmin && task.assigneeId !== user?.id} className="bg-white dark:bg-zinc-800 group-hover:ring ring-zinc-100 dark:group-hover:ring-zinc-800 outline-none px-2 pr-4 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-75" >
                                                         <option value="TODO" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200">To Do</option>
                                                         <option value="IN_PROGRESS" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200">In Progress</option>
                                                         <option value="DONE" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200">Done</option>
@@ -276,7 +281,7 @@ const ProjectTasks = ({ tasks }: ProjectTasksProps) => {
 
                                         <div onClick={(e) => e.stopPropagation()}>
                                             <label className="text-zinc-600 dark:text-zinc-400 text-xs">Status</label>
-                                            <select name="status" onChange={(e) => handleStatusChange(task.id, e.target.value)} value={task.status} className="w-full mt-1 bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 outline-none px-2 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer" >
+                                            <select name="status" onChange={(e) => handleStatusChange(task.id, e.target.value)} value={task.status} disabled={!isAdmin && task.assigneeId !== user?.id} className="w-full mt-1 bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 outline-none px-2 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-75" >
                                                 <option value="TODO" className="bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200">To Do</option>
                                                 <option value="IN_PROGRESS" className="bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200">In Progress</option>
                                                 <option value="DONE" className="bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200">Done</option>
