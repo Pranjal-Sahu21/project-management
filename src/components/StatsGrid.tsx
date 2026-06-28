@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderOpen, CheckCircle, Users, AlertTriangle } from "lucide-react";
+import { FolderOpen, CheckCircle, ListTodo, AlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -35,7 +35,7 @@ export default function StatsGrid() {
             textColor: "text-emerald-500",
         },
         {
-            icon: Users,
+            icon: ListTodo,
             title: "My Tasks",
             value: stats.myTasks,
             subtitle: "assigned to me",

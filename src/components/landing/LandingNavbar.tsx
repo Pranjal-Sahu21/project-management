@@ -8,18 +8,22 @@ import { Menu, X } from "lucide-react";
 import ZyneroLogo from "@/assets/Zynero-image.png";
 
 const navLinks = [
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Features", href: "#features" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "FAQ", href: "#faq" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Features", href: "/#features" },
+  { label: "Testimonials", href: "/#testimonials" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function LandingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    if (window.location.pathname !== "/") {
+      return;
+    }
     e.preventDefault();
-    const cleanId = targetId.replace("#", "");
+    const cleanId = targetId.replace("/#", "").replace("#", "");
     const element = document.getElementById(cleanId);
     if (element) {
       const offset = 80; // height of sticky navbar
@@ -57,7 +61,11 @@ export default function LandingNavbar() {
               <a
                 key={link.href}
                 href={link.href}
-                onClick={(e) => scrollToSection(e, link.href)}
+                onClick={(e) => {
+                  if (link.href.startsWith("/#") || link.href.startsWith("#")) {
+                    scrollToSection(e, link.href);
+                  }
+                }}
                 className="text-white/65 hover:text-white text-sm transition-colors duration-200"
               >
                 {link.label}
@@ -150,7 +158,9 @@ export default function LandingNavbar() {
                     href={link.href}
                     onClick={(e) => {
                       setMobileMenuOpen(false);
-                      scrollToSection(e, link.href);
+                      if (link.href.startsWith("/#") || link.href.startsWith("#")) {
+                        scrollToSection(e, link.href);
+                      }
                     }}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
