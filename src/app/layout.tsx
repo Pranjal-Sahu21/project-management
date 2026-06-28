@@ -36,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable} ${manrope.variable}`}>
-      <body className="antialiased font-sans">
+    <html lang="en" className={`${plusJakartaSans.variable} ${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
+      <body className="antialiased font-sans" suppressHydrationWarning>
         <ClerkThemeProvider>
           <StoreProvider>
             <LayoutShell>{children}</LayoutShell>

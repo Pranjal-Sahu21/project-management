@@ -100,7 +100,6 @@ export default function TeamPage() {
 
   const isClerkLoading = !organization || memberships?.isLoading;
 
-  if (loading || isClerkLoading) return <TeamSkeleton />;
 
   // Load workspaces on mount
   useEffect(() => {
@@ -158,6 +157,8 @@ export default function TeamPage() {
       ) || [],
     );
   }, [currentWorkspace]);
+
+  if (loading || isClerkLoading) return <TeamSkeleton />;
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
