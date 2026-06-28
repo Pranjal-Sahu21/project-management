@@ -90,7 +90,7 @@ export default function LayoutShell({ children }: LayoutShellProps) {
     }, [organization?.id, workspaces, isLoaded, isSignedIn, dispatch, getToken]);
 
     // If Clerk is still loading, show a blank background
-    if (!isLoaded || (isSignedIn && loading && workspaces.length === 0)) {
+    if (!isLoaded) {
         return <div className="h-screen bg-white dark:bg-zinc-950" />;
     }
 
@@ -105,7 +105,7 @@ export default function LayoutShell({ children }: LayoutShellProps) {
         );
     }
 
-    const hasNoWorkspaces = (workspaces.length === 0) || (isOrgListLoaded && userMemberships.data && userMemberships.data.length === 0);
+    const hasNoWorkspaces = !loading && ((workspaces.length === 0) || (isOrgListLoaded && userMemberships.data && userMemberships.data.length === 0));
 
     return (
         <LayoutContext.Provider value={{ hideSidebarAndNavbar, setHideSidebarAndNavbar }}>

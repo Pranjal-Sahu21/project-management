@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useOrganization } from "@clerk/nextjs";
 import { ArrowLeftIcon, PlusIcon, SettingsIcon, BarChart3Icon, CalendarIcon, FileStackIcon, ZapIcon } from "lucide-react";
 import ProjectAnalytics from "../../components/ProjectAnalytics";
 import ProjectSettings from "../../components/ProjectSettings";
@@ -10,18 +11,78 @@ import CreateTaskDialog from "../../components/CreateTaskDialog";
 import ProjectCalendar from "../../components/ProjectCalendar";
 import ProjectTasks from "../../components/ProjectTasks";
 
+function ProjectDetailSkeleton() {
+    return (
+        <div className="space-y-6 max-w-6xl mx-auto animate-pulse select-none text-zinc-900 dark:text-white">
+            {/* Top Bar Skeleton */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                    <div className="space-y-2">
+                        <div className="h-6 w-48 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        <div className="flex gap-2">
+                            <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        </div>
+                    </div>
+                </div>
+                <div className="h-9 w-28 bg-zinc-200 dark:bg-zinc-800 rounded" />
+            </div>
+
+            {/* Description Skeleton */}
+            <div className="h-4 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded" />
+
+            {/* Tab Bar Skeleton */}
+            <div className="flex border-b border-zinc-200 dark:border-zinc-800 gap-6 pb-px">
+                {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-8 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                ))}
+            </div>
+
+            {/* Tasks Section Skeleton */}
+            <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                    <div className="h-5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    <div className="h-9 w-32 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-md space-y-4">
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                    <div className="h-4 w-10 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                </div>
+                                <div className="h-3 w-full bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            </div>
+                            <div className="flex gap-2">
+                                <div className="h-5 w-12 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                <div className="h-5 w-12 bg-zinc-200 dark:bg-zinc-805 rounded" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function ProjectDetailContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { membership } = useOrganization();
     
     const tab = searchParams.get('tab') || "tasks";
     const id = searchParams.get('id') || "";
 
     const projects = useSelector((state: any) => state?.workspace?.currentWorkspace?.projects || []);
+    const loading = useSelector((state: any) => state?.workspace?.loading);
 
     const [project, setProject] = useState<any>(null);
     const [tasks, setTasks] = useState<any[]>([]);
     const [showCreateTask, setShowCreateTask] = useState(false);
+
+    const isAdmin = membership?.role === "org:admin";
 
     useEffect(() => {
         if (projects && projects.length > 0 && id) {
@@ -44,6 +105,8 @@ function ProjectDetailContent() {
         COMPLETED: "bg-blue-200 text-blue-900 dark:bg-blue-500 dark:text-blue-900",
         CANCELLED: "bg-red-200 text-red-900 dark:bg-red-500 dark:text-red-900",
     };
+
+    if (loading) return <ProjectDetailSkeleton />;
 
     if (!project) {
         return (
@@ -71,10 +134,12 @@ function ProjectDetailContent() {
                         </span>
                     </div>
                 </div>
-                <button onClick={() => setShowCreateTask(true)} className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white cursor-pointer hover:opacity-90 transition" >
-                    <PlusIcon className="size-4" />
-                    New Task
-                </button>
+                {isAdmin && (
+                    <button onClick={() => setShowCreateTask(true)} className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white cursor-pointer hover:opacity-90 transition" >
+                        <PlusIcon className="size-4" />
+                        New Task
+                    </button>
+                )}
             </div>
 
             {/* Info Cards */}
@@ -136,7 +201,7 @@ function ProjectDetailContent() {
             </div>
 
             {/* Create Task Modal */}
-            {showCreateTask && <CreateTaskDialog showCreateTask={showCreateTask} setShowCreateTask={setShowCreateTask} projectId={id} />}
+            {isAdmin && showCreateTask && <CreateTaskDialog showCreateTask={showCreateTask} setShowCreateTask={setShowCreateTask} projectId={id} />}
         </div>
     );
 }

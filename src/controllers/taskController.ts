@@ -36,7 +36,7 @@ export async function createTask(
     },
   });
 
-  if (!member) {
+  if (!member || member.role !== "ADMIN") {
     throw new Error("Forbidden");
   }
 

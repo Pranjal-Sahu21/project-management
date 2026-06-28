@@ -7,6 +7,7 @@ import AddProjectMember from "./AddProjectMember";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProject } from "../features/workspaceSlice";
 import { toast } from "react-hot-toast";
+import { useOrganization } from "@clerk/nextjs";
 
 interface ProjectSettingsProps {
   project: any;
@@ -15,6 +16,9 @@ interface ProjectSettingsProps {
 export default function ProjectSettings({ project }: ProjectSettingsProps) {
     const dispatch = useDispatch();
     const currentWorkspace = useSelector((state: any) => state.workspace?.currentWorkspace || null);
+    const { membership } = useOrganization();
+
+    const isAdmin = membership?.role === "org:admin";
 
     const [formData, setFormData] = useState({
         id: "",
@@ -113,20 +117,20 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
                     {/* Name */}
                     <div className="space-y-2">
                         <label className={labelClasses}>Project Name</label>
-                        <input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputClasses} required />
+                        <input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputClasses} required disabled={!isAdmin} />
                     </div>
 
                     {/* Description */}
                     <div className="space-y-2">
                         <label className={labelClasses}>Description</label>
-                        <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className={inputClasses + " h-24"} />
+                        <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className={inputClasses + " h-24"} disabled={!isAdmin} />
                     </div>
 
                     {/* Status & Priority */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className={labelClasses}>Status</label>
-                            <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className={inputClasses} >
+                            <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className={inputClasses} disabled={!isAdmin} >
                                 <option value="PLANNING" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Planning</option>
                                 <option value="ACTIVE" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Active</option>
                                 <option value="ON_HOLD" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">On Hold</option>
@@ -137,7 +141,7 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
 
                         <div className="space-y-2">
                             <label className={labelClasses}>Priority</label>
-                            <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className={inputClasses} >
+                            <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className={inputClasses} disabled={!isAdmin} >
                                 <option value="LOW" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Low</option>
                                 <option value="MEDIUM" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">Medium</option>
                                 <option value="HIGH" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-300">High</option>
@@ -149,24 +153,26 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
                     <div className="space-y-4 grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className={labelClasses}>Start Date</label>
-                            <input type="date" value={formatDateForInput(formData.start_date)} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} className={inputClasses} />
+                            <input type="date" value={formatDateForInput(formData.start_date)} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} className={inputClasses} disabled={!isAdmin} />
                         </div>
                         <div className="space-y-2">
                             <label className={labelClasses}>End Date</label>
-                            <input type="date" value={formatDateForInput(formData.end_date)} onChange={(e) => setFormData({ ...formData, end_date: e.target.value })} className={inputClasses} />
+                            <input type="date" value={formatDateForInput(formData.end_date)} onChange={(e) => setFormData({ ...formData, end_date: e.target.value })} className={inputClasses} disabled={!isAdmin} />
                         </div>
                     </div>
 
                     {/* Progress */}
                     <div className="space-y-2">
                         <label className={labelClasses}>Progress: {formData.progress}%</label>
-                        <input type="range" min="0" max="100" step="5" value={formData.progress} onChange={(e) => setFormData({ ...formData, progress: Number(e.target.value) })} className="w-full accent-blue-500 dark:accent-blue-400 mt-2 cursor-pointer" />
+                        <input type="range" min="0" max="100" step="5" value={formData.progress} onChange={(e) => setFormData({ ...formData, progress: Number(e.target.value) })} className="w-full accent-blue-500 dark:accent-blue-400 mt-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed" disabled={!isAdmin} />
                     </div>
 
                     {/* Save Button */}
-                    <button type="submit" disabled={isSubmitting} className="ml-auto flex items-center text-sm justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white px-4 py-2 rounded cursor-pointer" >
-                        <Save className="size-4" /> {isSubmitting ? "Saving..." : "Save Changes"}
-                    </button>
+                    {isAdmin && (
+                        <button type="submit" disabled={isSubmitting} className="ml-auto flex items-center text-sm justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white px-4 py-2 rounded cursor-pointer" >
+                            <Save className="size-4" /> {isSubmitting ? "Saving..." : "Save Changes"}
+                        </button>
+                    )}
                 </form>
             </div>
 
@@ -177,10 +183,12 @@ export default function ProjectSettings({ project }: ProjectSettingsProps) {
                         <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-300">
                             Team Members <span className="text-sm text-zinc-600 dark:text-zinc-400">({formData.members.length})</span>
                         </h2>
-                        <button type="button" onClick={() => setIsDialogOpen(true)} className="p-2 rounded-lg border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer" >
-                            <Plus className="size-4 text-zinc-900 dark:text-zinc-300" />
-                        </button>
-                        <AddProjectMember isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
+                        {isAdmin && (
+                            <button type="button" onClick={() => setIsDialogOpen(true)} className="p-2 rounded-lg border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer" >
+                                <Plus className="size-4 text-zinc-900 dark:text-zinc-300" />
+                            </button>
+                        )}
+                        {isAdmin && <AddProjectMember isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />}
                     </div>
 
                     {/* Member List */}

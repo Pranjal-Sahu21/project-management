@@ -13,6 +13,60 @@ import { useAuth, useOrganization } from "@clerk/nextjs";
 import { fetchWorkspaces } from "../../features/workspaceSlice";
 import { assets } from "../../assets/assets";
 
+function TeamSkeleton() {
+  return (
+    <div className="space-y-6 max-w-6xl mx-auto animate-pulse select-none">
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <div className="h-7 w-40 bg-zinc-200 dark:bg-zinc-800 rounded" />
+        <div className="h-4 w-60 bg-zinc-200 dark:bg-zinc-800 rounded" />
+      </div>
+
+      {/* Stats Cards Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="p-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-md flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="h-3.5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
+              <div className="h-6 w-12 bg-zinc-200 dark:bg-zinc-800 rounded" />
+            </div>
+            <div className="size-10 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+        ))}
+      </div>
+
+      {/* Search Input Skeleton */}
+      <div className="h-9 w-full max-w-xs bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
+
+      {/* Members List Table Skeleton */}
+      <div className="border border-zinc-200 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 overflow-hidden">
+        <div className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 p-4">
+          <div className="grid grid-cols-3 gap-4 text-xs font-semibold text-zinc-400">
+            <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+            <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+            <div className="h-3 w-12 bg-zinc-200 dark:bg-zinc-800 rounded" />
+          </div>
+        </div>
+        <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="p-4 grid grid-cols-3 gap-4 items-center">
+              <div className="flex items-center gap-3">
+                <div className="size-8 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                <div className="space-y-1">
+                  <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  <div className="h-3 w-36 bg-zinc-200 dark:bg-zinc-850 rounded" />
+                </div>
+              </div>
+              <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+              <div className="h-4 w-10 bg-zinc-200 dark:bg-zinc-800 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TeamPage() {
   const dispatch = useDispatch();
   const { getToken } = useAuth();
@@ -35,6 +89,7 @@ export default function TeamPage() {
   const currentWorkspace = useSelector(
     (state: any) => state?.workspace?.currentWorkspace || null,
   );
+  const loading = useSelector((state: any) => state?.workspace?.loading);
   const projects = currentWorkspace?.projects || [];
 
   const filteredUsers = users.filter(
@@ -42,6 +97,10 @@ export default function TeamPage() {
       user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user?.email?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const isClerkLoading = !organization || memberships?.isLoading;
+
+  if (loading || isClerkLoading) return <TeamSkeleton />;
 
   // Load workspaces on mount
   useEffect(() => {

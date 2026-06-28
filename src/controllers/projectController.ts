@@ -27,7 +27,7 @@ export async function createProject(
     },
   });
 
-  if (!member) {
+  if (!member || member.role !== "ADMIN") {
     throw new Error("Forbidden");
   }
 
@@ -109,7 +109,7 @@ export async function updateProject(
     },
   });
 
-  if (!member) {
+  if (!member || member.role !== "ADMIN") {
     throw new Error("Forbidden");
   }
 

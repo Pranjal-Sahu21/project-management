@@ -10,6 +10,74 @@ import { assets } from "../../assets/assets";
 import { useUser } from "@clerk/nextjs";
 import { updateTask } from "../../features/workspaceSlice";
 
+function TaskDetailSkeleton() {
+    return (
+        <div className="flex flex-col-reverse lg:flex-row gap-6 sm:p-4 text-gray-900 dark:text-zinc-100 max-w-6xl mx-auto animate-pulse select-none w-full">
+            {/* Left: Comments / Chatbox Skeleton */}
+            <div className="w-full lg:w-2/3">
+                <div className="p-5 rounded-md border border-gray-300 dark:border-zinc-800 flex flex-col lg:h-[calc(100vh-180px)] space-y-4">
+                    <div className="h-6 w-48 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    
+                    <div className="flex-1 space-y-4 overflow-hidden py-2">
+                        {[1, 2, 3].map((n) => (
+                            <div key={n} className={`w-[70%] border border-zinc-200 dark:border-zinc-800 p-3 rounded-md space-y-2 ${n % 2 === 0 ? "ml-auto" : "mr-auto"}`}>
+                                <div className="flex items-center gap-2">
+                                    <div className="size-5 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                                    <div className="h-3 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                    <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                </div>
+                                <div className="h-3.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 mt-auto pt-2">
+                        <div className="h-20 w-full bg-zinc-200 dark:bg-zinc-800 rounded-md" />
+                        <div className="h-10 w-20 bg-zinc-200 dark:bg-zinc-800 rounded-md" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Right: Task + Project Info Skeleton */}
+            <div className="w-full lg:w-1/3 flex flex-col gap-6">
+                {/* Task Info Card Skeleton */}
+                <div className="p-5 rounded-md border border-gray-300 dark:border-zinc-800 space-y-4 bg-white dark:bg-zinc-900">
+                    <div className="space-y-2">
+                        <div className="h-6 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        <div className="flex gap-2">
+                            <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        </div>
+                    </div>
+                    <hr className="border-zinc-200 dark:border-zinc-700" />
+                    <div className="space-y-2">
+                        <div className="h-3.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        <div className="h-3.5 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    </div>
+                    <hr className="border-zinc-200 dark:border-zinc-700" />
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    </div>
+                </div>
+
+                {/* Project Info Card Skeleton */}
+                <div className="p-5 rounded-md border border-gray-300 dark:border-zinc-800 space-y-4 bg-white dark:bg-zinc-900">
+                    <div className="h-6 w-32 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    <div className="h-5 w-24 bg-zinc-205 dark:bg-zinc-805 rounded" />
+                    <div className="h-3 w-36 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    <div className="space-y-2 text-sm pt-2">
+                        <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-805 rounded" />
+                        <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 const TaskDetailsContent = () => {
     const dispatch = useDispatch();
     const { user } = useUser();
@@ -213,7 +281,7 @@ const TaskDetailsContent = () => {
         }
     }, [comments]);
 
-    if (loading) return <div className="text-gray-500 dark:text-zinc-400 px-4 py-6">Loading task details...</div>;
+    if (loading) return <TaskDetailSkeleton />;
     if (!task) return <div className="text-red-500 px-4 py-6">Task not found.</div>;
 
     const assigneeImg = task.assignee?.image?.src || task.assignee?.image;

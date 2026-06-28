@@ -3,13 +3,62 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Plus, Search, FolderOpen } from "lucide-react";
+import { useOrganization } from "@clerk/nextjs";
 import ProjectCard from "../../components/ProjectCard";
 import CreateProjectDialog from "../../components/CreateProjectDialog";
 
+function ProjectsSkeleton() {
+    return (
+        <div className="space-y-6 max-w-6xl mx-auto animate-pulse select-none">
+            {/* Header Skeleton */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                <div className="space-y-2">
+                    <div className="h-7 w-32 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    <div className="h-4 w-52 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                </div>
+                <div className="h-9 w-36 bg-zinc-200 dark:bg-zinc-800 rounded" />
+            </div>
+
+            {/* Search and Filters Skeleton */}
+            <div className="flex flex-col md:flex-row gap-4">
+                <div className="h-9 w-full max-w-sm bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
+                <div className="h-9 w-32 bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
+                <div className="h-9 w-32 bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
+            </div>
+
+            {/* Projects Grid Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="p-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-md space-y-4">
+                        <div className="space-y-2">
+                            <div className="h-5 w-40 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            <div className="h-3.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            <div className="h-3.5 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center text-xs">
+                                <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                <div className="h-3 w-8 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            </div>
+                            <div className="h-2 w-full bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                            <div className="h-3.5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                            <div className="h-3.5 w-12 bg-zinc-205 dark:bg-zinc-800 rounded" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function ProjectsPage() {
+    const { membership } = useOrganization();
     const projects = useSelector(
         (state: any) => state?.workspace?.currentWorkspace?.projects || []
     );
+    const loading = useSelector((state: any) => state?.workspace?.loading);
 
     const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -18,6 +67,8 @@ export default function ProjectsPage() {
         status: "ALL",
         priority: "ALL",
     });
+
+    const isAdmin = membership?.role === "org:admin";
 
     const filterProjects = () => {
         let filtered = [...projects];
@@ -47,6 +98,8 @@ export default function ProjectsPage() {
         filterProjects();
     }, [projects, searchTerm, filters]);
 
+    if (loading) return <ProjectsSkeleton />;
+
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
             {/* Header */}
@@ -55,10 +108,14 @@ export default function ProjectsPage() {
                     <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1"> Projects </h1>
                     <p className="text-gray-500 dark:text-zinc-400 text-sm"> Manage and track your projects </p>
                 </div>
-                <button onClick={() => setIsDialogOpen(true)} className="flex items-center px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition cursor-pointer" >
-                    <Plus className="size-4 mr-2" /> New Project
-                </button>
-                <CreateProjectDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
+                {isAdmin && (
+                    <>
+                        <button onClick={() => setIsDialogOpen(true)} className="flex items-center px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition cursor-pointer" >
+                            <Plus className="size-4 mr-2" /> New Project
+                        </button>
+                        <CreateProjectDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
+                    </>
+                )}
             </div>
 
             {/* Search and Filters */}
@@ -86,21 +143,37 @@ export default function ProjectsPage() {
             {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProjects.length === 0 ? (
-                    <div className="col-span-full text-center py-16">
-                        <div className="w-24 h-24 mx-auto mb-6 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                            <FolderOpen className="w-12 h-12 text-gray-400 dark:text-zinc-500" />
+                    projects.length === 0 ? (
+                        <div className="col-span-full text-center py-16">
+                            <div className="w-24 h-24 mx-auto mb-6 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+                                <FolderOpen className="w-12 h-12 text-gray-400 dark:text-zinc-500" />
+                            </div>
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                No projects found
+                            </h3>
+                            <p className="text-gray-500 dark:text-zinc-400 mb-6 text-sm">
+                                {isAdmin ? "Create your first project to get started" : "Ask your workspace administrator to create a project to get started."}
+                            </p>
+                            {isAdmin && (
+                                <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mx-auto text-sm cursor-pointer" >
+                                    <Plus className="size-4" />
+                                    Create Project
+                                </button>
+                            )}
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                            No projects found
-                        </h3>
-                        <p className="text-gray-500 dark:text-zinc-400 mb-6 text-sm">
-                            Create your first project to get started
-                        </p>
-                        <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mx-auto text-sm cursor-pointer" >
-                            <Plus className="size-4" />
-                            Create Project
-                        </button>
-                    </div>
+                    ) : (
+                        <div className="col-span-full text-center py-16">
+                            <div className="w-24 h-24 mx-auto mb-6 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+                                <FolderOpen className="w-12 h-12 text-gray-400 dark:text-zinc-500" />
+                            </div>
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                This project doesn&apos;t exist
+                            </h3>
+                            <p className="text-gray-500 dark:text-zinc-400 text-sm">
+                                Try adjusting your search term or filters to find what you&apos;re looking for.
+                            </p>
+                        </div>
+                    )
                 ) : (
                     filteredProjects.map((project) => (
                         <ProjectCard key={project.id} project={project} />
