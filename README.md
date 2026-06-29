@@ -26,6 +26,16 @@ Zynero is a professional SaaS-grade project management application. It bridges t
 
 ---
 
+### UI Showcase
+
+
+<img src="./public/Landing_Mockup.png" alt="Zynero Landing page Layout" width = "100%"/>
+  <img src="./public/CTA_Image.png" alt="Zynero Desktop Layout" width="100%" />
+  &nbsp;&nbsp;
+  <img src="./public/Mobile_Dashboard.png" alt="Zynero Mobile Layout" width="100%" />
+
+---
+
 ## Tech Stack
 
 | Component | Technology | Description |
@@ -111,14 +121,6 @@ project-management/
 ---
 
 ## Usage
-
-### UI Showcase
-
-
-<img src="./public/Landing_Mockup.png" alt="Zynero Landing page Layout" width = "100%"/>
-  <img src="./public/CTA_Image.png" alt="Zynero Desktop Layout" width="100%" />
-  &nbsp;&nbsp;
-  <img src="./public/Mobile_Dashboard.png" alt="Zynero Mobile Layout" width="100%" />
 
 
 1.  **Public Access**: View the landing page and submit inquiries via the public **Contact Us** page.
