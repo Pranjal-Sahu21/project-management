@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     default: "Zynero | Premium Project Management for High-Velocity Teams",
     template: "%s | Zynero",
   },
+  verification: {
+    google: "Et-PzGcnqIIC_2i320F-hHlenrOeVOYgs4D7pHduBBo",
+  },
   description:
     "Zynero is a premium, real-time project management platform to orchestrate team tasks, project workloads, calendars, discussion comments, and visual analytics dashboards.",
   keywords: [
