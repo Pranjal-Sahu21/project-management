@@ -6,7 +6,7 @@ import Link from "next/link";
 import zyneroLogo from "@/assets/Zynero-image.png";
 
 const quickLinks = [
-  { label: "Dashboard", href: "/dashboard" },
+  { label: "Dashboard", href: "/" },
   { label: "Projects", href: "/projects" },
   { label: "Team", href: "/team" },
 ];

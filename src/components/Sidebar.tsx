@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import MyTasksSidebar from './MyTasksSidebar';
 import ProjectSidebar from './ProjectsSidebar';
 import WorkspaceDropdown from './WorkspaceDropdown';
-import { FolderOpenIcon, LayoutDashboardIcon, SettingsIcon, UsersIcon } from 'lucide-react';
+import { FolderOpenIcon, HelpCircleIcon, LayoutDashboardIcon, SettingsIcon, UsersIcon } from 'lucide-react';
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -53,6 +53,10 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }: SidebarProps) => {
                         <Link href="/settings" className={`flex w-full items-center gap-3 py-2 px-4 text-gray-800 dark:text-zinc-100 cursor-pointer rounded transition-all ${pathname === '/settings' ? 'bg-gray-100 dark:bg-zinc-900 dark:bg-gradient-to-br dark:from-zinc-800 dark:to-zinc-800/50 dark:ring-zinc-800' : 'hover:bg-gray-50 dark:hover:bg-zinc-800/60'}`}>
                             <SettingsIcon size={16} />
                             <p className='text-sm truncate'>Settings</p>
+                        </Link>
+                        <Link href="/contact" className={`flex w-full items-center gap-3 py-2 px-4 text-gray-800 dark:text-zinc-100 cursor-pointer rounded transition-all ${pathname === '/contact' ? 'bg-gray-100 dark:bg-zinc-900 dark:bg-gradient-to-br dark:from-zinc-800 dark:to-zinc-800/50 dark:ring-zinc-800' : 'hover:bg-gray-50 dark:hover:bg-zinc-800/60'}`}>
+                            <HelpCircleIcon size={16} />
+                            <p className='text-sm truncate'>Contact Us</p>
                         </Link>
                     </div>
                     <MyTasksSidebar />

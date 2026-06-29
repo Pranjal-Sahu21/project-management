@@ -186,7 +186,7 @@ export default function ContactPage() {
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="group w-full flex items-center justify-center gap-2 bg-[#09f] hover:bg-[#0088dd] text-white text-sm px-6 py-3.5 rounded-xl transition duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 font-semibold"
+                    className="group w-full flex items-center justify-center gap-2 bg-[#09f] hover:bg-[#0088dd] text-white text-sm px-6 py-3.5 rounded-xl transition duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                     disabled={loading}
                   >
                     {loading ? (
