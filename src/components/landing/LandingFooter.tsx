@@ -89,7 +89,7 @@ export default function LandingFooter() {
           {/* Bottom row */}
           <div className="border-t border-white/[0.04] mt-10 pt-6 flex flex-col md:flex-row justify-end items-center gap-4">
             <p className="text-xs text-white/30">
-              © 2025 Zynero Inc. All rights reserved.
+              © {new Date().getFullYear()} Zynero Inc. All rights reserved.
             </p>
           </div>
         </div>
