@@ -177,19 +177,6 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
 
 Zynero follows a robust architectural flow combining server-side database handlers, global client-side slices, and asynchronous worker queues:
 
-```mermaid
-graph TD
-    User([User Browser]) -->|Routes| Pages[Next.js Pages /app]
-    Pages -->|Dispatches| ReduxStore[Redux Slices /features]
-    Pages -->|Invokes| DBControllers[DB Controllers /controllers]
-    DBControllers -->|Queries| Prisma[Prisma Client]
-    Prisma -->|Reads/Writes| DB[(PostgreSQL)]
-    
-    Clerk[Clerk Auth Service] -->|Webhooks| Inngest[Inngest Event Worker]
-    Inngest -->|Sync User Profile| Prisma
-    
-    Middleware[Clerk Middleware] -->|Filters Requests| Pages
-```
 
 *   **Authentication & Profile Sync**: When a user registers via Clerk, Clerk emits a webhook which is processed by the **Inngest** worker queue. Inngest executes a sync handler, creating a matching profile inside the PostgreSQL database via Prisma.
 *   **Clerk Middleware**: Filters all incoming Next.js requests. Public paths (`/`, `/contact`, `/sitemap.xml`, `/robots.txt`) bypass middleware checks, while private routes trigger a sign-in redirect.
