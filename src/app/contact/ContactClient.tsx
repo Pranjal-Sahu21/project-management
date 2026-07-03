@@ -7,15 +7,29 @@ import toast from "react-hot-toast";
 import LandingNavbar from "../../components/landing/LandingNavbar";
 import LandingFooter from "../../components/landing/LandingFooter";
 import { LayoutContext } from "../../components/LayoutShell";
+import dynamic from "next/dynamic";
+
+const Warp = dynamic(
+  () => import("@paper-design/shaders-react").then((mod) => mod.Warp),
+  { ssr: false }
+);
 
 export default function ContactClient() {
   const { setHideSidebarAndNavbar } = useContext(LayoutContext);
+  const [isWarpMounted, setIsWarpMounted] = useState(false);
 
   // Set hideSidebarAndNavbar to true on mount to skip dashboard shell
   useEffect(() => {
     setHideSidebarAndNavbar(true);
     return () => setHideSidebarAndNavbar(false);
   }, [setHideSidebarAndNavbar]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsWarpMounted(true);
+    }, 450); // Stagger text entry to let dynamic Warp canvas initialize first
+    return () => clearTimeout(timer);
+  }, []);
 
   const [form, setForm] = useState({
     name: "",
@@ -70,12 +84,35 @@ export default function ContactClient() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#050505] text-white overflow-x-clip font-sans flex flex-col justify-between">
+    <div className="min-h-screen w-full bg-[#050505] text-white overflow-x-clip font-sans flex flex-col justify-between relative">
+      {/* Warp Background from shaders.paper.design */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.55] select-none">
+        <Warp
+          colors={["#050505", "#0055ff", "#050505", "#09f"]}
+          proportion={0.45}
+          softness={1}
+          distortion={0.25}
+          swirl={0.8}
+          swirlIterations={10}
+          shape="checks"
+          shapeScale={0.1}
+          speed={0.65}
+          style={{ width: "100%", height: "100%" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/40 to-[#050505]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505]" />
+      </div>
+
       <LandingNavbar />
 
-      <main className="flex-grow max-w-7xl mx-auto px-6 py-16 md:py-24 w-full grid lg:grid-cols-12 gap-12 md:gap-16 items-start">
+      <main className="flex-grow max-w-7xl mx-auto px-6 pt-28 md:pt-36 pb-16 md:pb-24 w-full grid lg:grid-cols-12 gap-12 md:gap-16 items-start relative z-10">
         {/* Left Side: Contact Details & Info */}
-        <div className="lg:col-span-5 space-y-8 lg:sticky lg:top-28">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isWarpMounted ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ duration: 0.6 }}
+          className="lg:col-span-5 space-y-8 lg:sticky lg:top-28"
+        >
           <div className="space-y-4">
             <h1 className="text-3xl sm:text-4xl md:text-5xl tracking-tight leading-[1.1] pb-2 bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400">
               Get in touch with our team.
@@ -105,7 +142,7 @@ export default function ContactClient() {
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Right Side: Interactive Contact Form */}
         <div className="lg:col-span-7 w-full">
@@ -114,9 +151,9 @@ export default function ContactClient() {
               <motion.div
                 key="contact-form"
                 initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={isWarpMounted ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 exit={{ opacity: 0, y: -30 }}
-                transition={{ duration: 0.4 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
                 className="w-full bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 sm:p-10 backdrop-blur-xl relative overflow-hidden"
               >
                 {/* Visual Accent Glow */}
@@ -155,17 +192,17 @@ export default function ContactClient() {
 
                   {/* Subject select */}
                   <div className="space-y-2">
-                    <label className="text-xs  uppercase tracking-wider text-zinc-400">How can we help? *</label>
+                    <label className="text-xs uppercase tracking-wider text-zinc-400">How can we help? *</label>
                     <select
                       value={form.subject}
                       onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                      className="w-full rounded-xl bg-[#090909] border border-white/[0.08] focus:border-[#09f]/50 px-4 py-3 text-white text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-[#09f]/30 transition cursor-pointer"
+                      className="w-full rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-[#09f]/50 px-4 py-3 text-white text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-[#09f]/30 transition cursor-pointer"
                       disabled={loading}
                     >
-                      <option value="Inquiry">General Inquiry</option>
-                      <option value="Sales">Request a Demo / Sales</option>
-                      <option value="Support">Technical Support</option>
-                      <option value="Feedback">Feature Feedback</option>
+                      <option value="Inquiry" className="bg-[#0d0d0d] text-white">General Inquiry</option>
+                      <option value="Sales" className="bg-[#0d0d0d] text-white">Request a Demo / Sales</option>
+                      <option value="Support" className="bg-[#0d0d0d] text-white">Technical Support</option>
+                      <option value="Feedback" className="bg-[#0d0d0d] text-white">Feature Feedback</option>
                     </select>
                   </div>
 

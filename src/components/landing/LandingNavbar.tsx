@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -19,8 +19,24 @@ const navLinks = [
 
 export default function LandingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isContactPage = pathname === "/contact";
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 30) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const showSolidBackground = scrolled;
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     if (window.location.pathname !== "/") {
@@ -45,7 +61,13 @@ export default function LandingNavbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-white/[0.06]">
+      <header
+        className={`fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300 ease-in-out ${
+          showSolidBackground
+            ? "bg-[#050505]/80 backdrop-blur-xl border-b border-white/[0.06] py-0"
+            : "bg-transparent border-b border-transparent py-2"
+        }`}
+      >
         <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
