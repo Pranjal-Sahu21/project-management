@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { SearchIcon, PanelLeft, MoonIcon, SunIcon, Folder, CheckSquare } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleTheme } from '../features/themeSlice';
+import { toggleTheme, setTheme } from '../features/themeSlice';
 import { Show, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { ToggleTheme } from "./lightswind/ToggleTheme";
 
 interface NavbarProps {
   isSidebarOpen: boolean;
@@ -236,13 +237,11 @@ const Navbar = ({ setIsSidebarOpen }: NavbarProps) => {
                 {/* Right section */}
                 <div className="flex items-center gap-3">
                     {/* Theme Toggle */}
-                    <button onClick={() => dispatch(toggleTheme())} className="size-8 flex items-center justify-center bg-white dark:bg-zinc-800 shadow rounded-lg transition hover:scale-105 active:scale-95 cursor-pointer">
-                        {
-                            theme === "light"
-                                ? (<MoonIcon className="size-4 text-gray-800 dark:text-gray-200" />)
-                                : (<SunIcon className="size-4 text-yellow-400" />)
-                        }
-                    </button>
+                <ToggleTheme
+                    animationType="circle-spread"
+                    onThemeChange={(isDark) => dispatch(setTheme(isDark ? "dark" : "light"))}
+                    className="size-8 flex items-center justify-center bg-white dark:bg-zinc-800 shadow rounded-lg cursor-pointer"
+                />
 
                     {/* Clerk User Button / Sign In / Sign Up */}
                     <Show when="signed-in">
